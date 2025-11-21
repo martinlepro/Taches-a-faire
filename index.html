@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Organisateur de Tâches</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Liste de Tâches 📝</h1>
+            <button class="settings-btn" onclick="toggleSettingsMenu()">
+                <i class="fas fa-cog"></i>
+            </button>
             <div class="stats">
                 <p>Série Actuelle : <span id="current-streak">0</span> 🔥</p>
                 <p>Record de Série : <span id="max-streak">0</span> 👑</p>
@@ -17,6 +21,23 @@
             </div>
         </header>
 
+        <div id="settings-menu" class="settings-menu hidden">
+            <h2>Réglages de l'Application</h2>
+            
+            <div class="setting-item">
+                <label for="haptics-toggle">Vibrations (Haptics)</label>
+                <input type="checkbox" id="haptics-toggle" onchange="saveSettings()">
+                <span class="info-tip" title="Retour physique lors de l'accomplissement des tâches.">ⓘ</span>
+            </div>
+
+            <div class="setting-item social-setting">
+                <h3>Partage Social (BÊTA)</h3>
+                <label for="social-share-toggle">Partager mes stats avec mes amis</label>
+                <input type="checkbox" id="social-share-toggle" onchange="saveSettings()">
+                <p class="warning-text">⚠️ Cette fonctionnalité nécessite un serveur et est désactivée sans backend.</p>
+                <button onclick="shareLocalStats()" class="share-btn">Partager mon lien de stats (local)</button>
+            </div>
+        </div>
         <section class="task-input">
             <input type="text" id="new-task" placeholder="Ajouter une nouvelle tâche..." required>
             <select id="task-difficulty">

@@ -1,34 +1,43 @@
-// --- 1. Variables Globales et Initialisation ---
+// --- 1. Variables Globales et Configuration ---
 
-// Clés de stockage local
 const STORAGE_KEYS = {
     TASKS: 'todoApp.tasks',
+    ARCHIVE: 'todoApp.archive', // Nouvelle clé pour l'archive
     STREAK: 'todoApp.currentStreak',
+    MAX_STREAK: 'todoApp.maxStreak', // Nouvelle clé pour le record
     TOTAL_POINTS: 'todoApp.totalPoints',
     STREAK_HISTORY: 'todoApp.streakHistory',
     POINTS_HISTORY: 'todoApp.pointsHistory',
-    LAST_CHECK: 'todoApp.lastCheckDate', // Pour la réinitialisation journalière
+    LAST_CHECK: 'todoApp.lastCheckDate',
 };
 
+const POINTS_CONFIG = {
+    easy: 1,
+    medium: 3,
+    hard: 5,
+    newStreakRecord: 10 // Points pour un nouveau record de série
+};
+
+const RESET_HOUR = 0; // Réinitialisation à 0h00
+const NOTIFICATION_HOUR = 10; // Notification à 10h00
+
 let tasks = [];
+let archive = [];
 let currentStreak = 0;
+let maxStreak = 0; // Initialisation du record
 let totalPoints = 0;
 let streakHistory = [];
 let pointsHistory = [];
 let lastCheckDate = null;
-
-// Points attribués pour chaque nouvelle série
-const POINTS_PER_NEW_STREAK_RECORD = 10;
-// Heure de la notification/réinitialisation (0h00 heure de Paris)
-const RESET_HOUR = 0; 
-const NOTIFICATION_HOUR = 10; // 10h00 pour la notification
 
 // --- 2. Fonctions de Stockage Local ---
 
 /** Charge les données depuis localStorage. */
 function loadData() {
     tasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS) || '[]');
+    archive = JSON.parse(localStorage.getItem(STORAGE_KEYS.ARCHIVE) || '[]');
     currentStreak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0');
+    maxStreak = parseInt(localStorage.getItem(STORAGE_KEYS.MAX_STREAK) || '0');
     totalPoints = parseInt(localStorage.getItem(STORAGE_KEYS.TOTAL_POINTS) || '0');
     streakHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.STREAK_HISTORY) || '[]');
     pointsHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.POINTS_HISTORY) || '[]');
@@ -38,7 +47,9 @@ function loadData() {
 /** Sauvegarde les données dans localStorage. */
 function saveData() {
     localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+    localStorage.setItem(STORAGE_KEYS.ARCHIVE, JSON.stringify(archive));
     localStorage.setItem(STORAGE_KEYS.STREAK, currentStreak.toString());
+    localStorage.setItem(STORAGE_KEYS.MAX_STREAK, maxStreak.toString());
     localStorage.setItem(STORAGE_KEYS.TOTAL_POINTS, totalPoints.toString());
     localStorage.setItem(STORAGE_KEYS.STREAK_HISTORY, JSON.stringify(streakHistory));
     localStorage.setItem(STORAGE_KEYS.POINTS_HISTORY, JSON.stringify(pointsHistory));
@@ -51,62 +62,52 @@ function saveData() {
 /** Vérifie et gère la réinitialisation quotidienne à 0h00 (heure de Paris). */
 function checkDailyReset() {
     const now = new Date();
-    const todayStr = now.toLocaleDateString('fr-FR'); // Format JJ/MM/AAAA
-
-    if (lastCheckDate === todayStr) {
-        // Déjà vérifié aujourd'hui, rien à faire (sauf si c'est après 0h00)
-        return;
-    }
-
-    // Récupérer la date de la dernière vérification pour la comparaison
-    const lastCheckTime = lastCheckDate ? new Date(lastCheckDate) : null;
+    const todayStr = now.toLocaleDateString('fr-FR');
     
-    // Si nous sommes sur un nouveau jour (ou que c'est la première utilisation)
-    // Nous devons vérifier si toutes les tâches d'hier ont été complétées.
+    // Convertir la date stockée en objet Date pour la comparaison
+    const lastCheckTime = lastCheckDate ? new Date(lastCheckDate.split('/').reverse().join('-')) : null;
 
-    // 1. Déterminer si un jour s'est écoulé
+    // Déterminer si nous sommes sur un nouveau jour par rapport à la dernière vérification
     const isNewDay = !lastCheckTime || (now.setHours(RESET_HOUR, 0, 0, 0) > lastCheckTime.setHours(RESET_HOUR, 0, 0, 0));
     
     if (isNewDay) {
-        // Vérifier si toutes les tâches précédentes étaient complétées
+        // --- 1. Vérification et mise à jour de la Série ---
         const allCompleted = tasks.every(task => task.completed);
-        const hasTasks = tasks.length > 0;
+        const tasksToCompleteCount = tasks.filter(task => !task.completed).length;
 
-        if (hasTasks && !allCompleted) {
-            // La série est brisée !
+        if (tasks.length > 0 && !allCompleted) {
+            // La série est brisée si des tâches existaient et n'étaient pas finies
             if (currentStreak > 0) {
-                // Enregistrer la série brisée
-                streakHistory.push({ date: lastCheckTime.toLocaleDateString('fr-FR'), streak: currentStreak });
-                // Afficher une alerte (sera mieux gérée par Median.co/notifications)
-                alert(`Dommage ! Votre série de ${currentStreak} jour(s) est brisée. Réessayez !`);
+                streakHistory.push({ date: lastCheckDate, streak: currentStreak });
+                alert(`Dommage ! Votre série de ${currentStreak} jour(s) est brisée. ${tasksToCompleteCount} tâches non finies !`);
             }
-            currentStreak = 0; // Réinitialiser la série
-        } else if (hasTasks && allCompleted) {
-            // Victoire ! Augmenter la série.
+            currentStreak = 0; 
+        } else if (tasks.length > 0 && allCompleted) {
+            // Victoire si toutes les tâches sont complétées
             currentStreak++;
         }
+        // Si aucune tâche, la série reste inchangée (ni brisée, ni augmentée)
 
-        // 2. Gérer les points pour un nouveau record de série
-        const maxStreak = Math.max(...streakHistory.map(h => h.streak), 0);
+        // --- 2. Mise à jour du Record de Série (Max Streak) et Points ---
         if (currentStreak > maxStreak) {
-            totalPoints += POINTS_PER_NEW_STREAK_RECORD;
+            maxStreak = currentStreak; // Nouveau record
+            totalPoints += POINTS_CONFIG.newStreakRecord;
             
-            // Enregistrer l'historique des points
+            // Enregistrement de l'historique des points
             pointsHistory.push({ 
                 date: todayStr, 
-                points: POINTS_PER_NEW_STREAK_RECORD, 
-                reason: `Nouveau record de série: ${currentStreak} jours` 
+                points: POINTS_CONFIG.newStreakRecord, 
+                reason: `Nouveau record de série : ${currentStreak} jours` 
             });
             
-            // Notification de gain de points (sera mieux gérée par Median.co)
-            alert(`Félicitations ! Nouveau record de série : ${currentStreak} jours ! Vous gagnez ${POINTS_PER_NEW_STREAK_RECORD} points !`);
+            alert(`Félicitations ! Nouveau record de série : ${currentStreak} jours ! Vous gagnez ${POINTS_CONFIG.newStreakRecord} points !`);
         }
         
-        // 3. Réinitialiser les tâches pour le nouveau jour
+        // --- 3. Réinitialisation des tâches pour le nouveau jour ---
         // Conserver les tâches mais les marquer comme non complétées
         tasks = tasks.map(task => ({ ...task, completed: false }));
 
-        // 4. Mettre à jour la date de dernière vérification
+        // --- 4. Mettre à jour la date de dernière vérification ---
         lastCheckDate = todayStr;
         saveData();
     }
@@ -116,32 +117,75 @@ function checkDailyReset() {
 /** Ajoute une nouvelle tâche à la liste. */
 function addTask() {
     const input = document.getElementById('new-task');
+    const difficultySelect = document.getElementById('task-difficulty');
     const text = input.value.trim();
+    const difficulty = difficultySelect.value;
+    const points = POINTS_CONFIG[difficulty];
 
     if (text) {
         tasks.push({
             id: Date.now(),
             text: text,
-            completed: false
+            completed: false,
+            difficulty: difficulty,
+            points: points
         });
         input.value = '';
         saveData();
     }
 }
 
-/** Bascule l'état de complétion d'une tâche et met à jour la série/points. */
+/** Bascule l'état de complétion d'une tâche et attribue les points. */
 function toggleTaskCompletion(taskId) {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
-        task.completed = !task.completed;
+        const wasCompleted = task.completed;
+        task.completed = !wasCompleted;
+
+        if (!wasCompleted) {
+            // Tâche complétée: Ajouter les points
+            totalPoints += task.points;
+            pointsHistory.push({ 
+                date: new Date().toLocaleDateString('fr-FR'), 
+                points: task.points, 
+                reason: `Tâche complétée: "${task.text}"` 
+            });
+            triggerHaptics('success');
+        } else {
+            // Tâche annulée: Retirer les points (optionnel, mais juste)
+            totalPoints -= task.points;
+            triggerHaptics('error');
+        }
         saveData();
     }
 }
 
-/** Supprime une tâche. */
-function deleteTask(taskId) {
-    tasks = tasks.filter(t => t.id !== taskId);
-    saveData();
+/** Édite le texte d'une tâche. */
+function editTask(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        const newText = prompt(`Modifier la tâche "${task.text}" :`, task.text);
+        if (newText && newText.trim() !== "") {
+            task.text = newText.trim();
+            saveData();
+        }
+    }
+}
+
+/** Archive une tâche (remplace la suppression simple). */
+function archiveTask(taskId) {
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+    if (taskIndex !== -1) {
+        const [taskToArchive] = tasks.splice(taskIndex, 1);
+        
+        // Ajouter la tâche à l'archive
+        archive.push({
+            ...taskToArchive,
+            archivedDate: new Date().toLocaleDateString('fr-FR')
+        });
+        
+        saveData();
+    }
 }
 
 // --- 4. Mise à Jour de l'Interface Utilisateur (UI) ---
@@ -150,6 +194,7 @@ function deleteTask(taskId) {
 function updateUI() {
     // 1. Mettre à jour les statistiques
     document.getElementById('current-streak').textContent = currentStreak;
+    document.getElementById('max-streak').textContent = maxStreak;
     document.getElementById('total-points').textContent = totalPoints;
 
     // 2. Afficher la liste des tâches
@@ -164,12 +209,16 @@ function updateUI() {
         const li = document.createElement('li');
         li.className = task.completed ? 'completed' : '';
         li.innerHTML = `
-            <span>${task.text}</span>
+            <div class="task-info">
+                <span>${task.text}</span>
+                <span class="task-difficulty">Difficulté: ${task.difficulty.charAt(0).toUpperCase() + task.difficulty.slice(1)} (+${task.points} pts)</span>
+            </div>
             <div class="task-actions">
                 <button class="complete-btn" onclick="toggleTaskCompletion(${task.id})">
                     ${task.completed ? 'Annuler' : 'Fait ✅'}
                 </button>
-                <button class="delete-btn" onclick="deleteTask(${task.id})">Supprimer 🗑️</button>
+                <button class="edit-btn" onclick="editTask(${task.id})">Modifier ✏️</button>
+                <button class="delete-btn" onclick="archiveTask(${task.id})">Archiver 📦</button>
             </div>
         `;
         taskListElement.appendChild(li);
@@ -189,8 +238,21 @@ function updateUI() {
         li.textContent = `Série de ${item.streak} jours (terminée le ${item.date})`;
         streakListElement.appendChild(li);
     });
+    
+    // 4. Afficher la liste des archives
+    const archiveListElement = document.getElementById('archive-list');
+    archiveListElement.innerHTML = '';
+    if (archive.length === 0) {
+        archiveListElement.innerHTML = '<li>L\'archive est vide.</li>';
+    }
+    archive.slice(-5).reverse().forEach(item => { // Afficher les 5 dernières archivées
+        const li = document.createElement('li');
+        li.textContent = `${item.archivedDate}: "${item.text}"`;
+        archiveListElement.appendChild(li);
+    });
 
-    // Afficher l'historique des points pour la période par défaut (daily)
+
+    // 5. Afficher l'historique des points pour la période par défaut (daily)
     displayHistory('daily'); 
 }
 
@@ -199,13 +261,15 @@ function displayHistory(period) {
     const listElement = document.getElementById('points-history-list');
     listElement.innerHTML = '';
     document.getElementById('history-period-title').textContent = 
-        period.charAt(0).toUpperCase() + period.slice(1); // Met la première lettre en majuscule
+        period.charAt(0).toUpperCase() + period.slice(1);
 
     let filteredHistory = [];
     const now = new Date();
 
     pointsHistory.forEach(item => {
-        const itemDate = new Date(item.date.split('/').reverse().join('-')); // Convertir 'JJ/MM/AAAA' en Date
+        // Convertir 'JJ/MM/AAAA' en Date
+        const parts = item.date.split('/');
+        const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
         let isIncluded = false;
 
         switch (period) {
@@ -213,7 +277,6 @@ function displayHistory(period) {
                 isIncluded = itemDate.toLocaleDateString('fr-FR') === now.toLocaleDateString('fr-FR');
                 break;
             case 'weekly':
-                // Simple : 7 jours avant aujourd'hui
                 const oneWeekAgo = new Date(now);
                 oneWeekAgo.setDate(now.getDate() - 7);
                 isIncluded = itemDate >= oneWeekAgo;
@@ -242,38 +305,51 @@ function displayHistory(period) {
     });
 }
 
-// --- 5. Logique des Notifications (Dépendant de l'environnement) ---
+// --- 5. Logique des Notifications et Haptics ---
 
-/** Demande la permission de notification au navigateur. */
-function requestNotificationPermission() {
-    if ('Notification' in window) {
-        Notification.requestPermission();
+/** Déclenche un retour haptique (vibration) via le pont Median.co. */
+function triggerHaptics(type = 'success') {
+    // Cette fonction NE fonctionnera QUE lorsque l'application est compilée avec Median.co
+    // et que le "JavaScript Bridge" est actif.
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.gonative) {
+        // 'success' (tâche faite), 'error' (tâche annulée/série brisée), 'impactLight' (simple clic)
+        let feedbackType = 'impactLight'; 
+        if (type === 'success') feedbackType = 'success';
+        if (type === 'error') feedbackType = 'error';
+
+        window.webkit.messageHandlers.gonative.postMessage({
+            command: 'hapticEngine',
+            arguments: {
+                feedback: feedbackType
+            }
+        });
     }
+    // Note: Pour Android, le pont est souvent un peu différent, mais Median.co peut le gérer.
 }
 
-/** Tente d'afficher une notification d'objectif. */
+
+/** Demande la permission de notification et planifie l'affichage (seulement si l'appli est ouverte). */
 function showObjectiveNotification() {
     if ('Notification' in window && Notification.permission === 'granted') {
         new Notification("✨ Objectif Quotidien", {
             body: "Il est temps de mettre à jour et de planifier vos objectifs pour la journée !",
-            icon: 'icon.png' // Ajoutez un fichier icon.png dans le dossier de l'appli
+            icon: 'icon.png' 
         });
     } else if ('Notification' in window && Notification.permission !== 'denied') {
-        // Demande de permission si elle n'a pas été refusée
-        requestNotificationPermission();
+        Notification.requestPermission();
     }
+    
+    // IMPORTANT: Pour une application native (APK), configurez la notification récurrente
+    // DIRECTEMENT dans l'App Studio de Median.co à l'heure souhaitée (10h00 France) pour qu'elle
+    // s'affiche même lorsque l'application est fermée.
 }
 
 /** Vérifie si c'est l'heure de la notification. */
 function checkNotificationTime() {
     const now = new Date();
-    // Décalage pour l'heure de Paris/France (CET/CEST) - Nécessite une gestion plus robuste
-    // Pour un environnement natif (Median.co), utilisez la librairie de notification native.
-    // Ici, on utilise l'heure locale, en espérant qu'elle corresponde.
     const currentHour = now.getHours();
 
     if (currentHour === NOTIFICATION_HOUR) {
-        // Pour éviter de spammer, on ne notifie qu'une fois par jour
         const lastNotifStr = localStorage.getItem('lastNotificationDate');
         const todayStr = now.toLocaleDateString('fr-FR');
         
@@ -288,11 +364,15 @@ function checkNotificationTime() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
-    checkDailyReset(); // Important : vérifier la série dès le chargement
+    checkDailyReset(); 
     updateUI();
-    requestNotificationPermission(); // Demande la permission
     
-    // Vérifie l'heure de la notification toutes les heures (ou plus souvent)
-    setInterval(checkNotificationTime, 60 * 60 * 1000); // Toutes les heures
+    // Tentative de demande de permission de notification au démarrage
+    if ('Notification' in window && Notification.permission !== 'denied') {
+        Notification.requestPermission();
+    }
+    
+    // Vérification de l'heure de la notification toutes les heures
+    setInterval(checkNotificationTime, 60 * 60 * 1000);
     checkNotificationTime(); // Première vérification immédiate
 });

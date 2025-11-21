@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Organisateur de Tâches</title>
+    <title>Ma To-Do List Gamifiée</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -11,16 +11,41 @@
     
     <div class="container">
         <header>
-            <h1>Liste de Tâches 📝</h1>
-            <button class="settings-btn" onclick="toggleSettingsMenu()">
+            <div id="profile-display" onclick="toggleSection('profile-section')">
+                <span id="profile-icon" style="font-size: 24px;">👤</span>
+                <span id="level-display" class="badge level-badge">Niv. 0</span>
+            </div>
+
+            <h1>Ma To-Do List Gamifiée</h1>
+            
+            <button class="settings-btn" onclick="toggleSection('settings-menu')">
                 <i class="fas fa-cog"></i>
             </button>
-            <div class="stats">
-                <p>Série Actuelle : <span id="current-streak">0</span> 🔥</p>
-                <p>Record de Série : <span id="max-streak">0</span> 👑</p>
-                <p>Total Points : <span id="total-points">0</span> 🌟</p>
-            </div>
         </header>
+        
+        <div class="stats-panel">
+            <p>Série Actuelle : <span id="current-streak">0</span> 🔥</p>
+            <p>Record de Série : <span id="max-streak">0</span> 👑</p>
+            <p>Total Points : <span id="total-points">0</span> 🌟</p>
+        </div>
+
+        <section id="shop-section" class="section-panel hidden">
+            <h2>🛒 Boutique d'Améliorations</h2>
+            <p>Dépensez vos points pour des récompenses et des cosmétiques !</p>
+            <ul id="shop-items-list">
+                </ul>
+        </section>
+        
+        <section id="profile-section" class="section-panel hidden">
+            <h2>✨ Mon Profil</h2>
+            <div class="profile-details">
+                <span id="current-profile-icon" style="font-size: 3rem;">👤</span>
+                <p>Niveau : <strong id="profile-level">0</strong></p>
+                <p>Points Totaux : <strong id="profile-points">0</strong></p>
+                <p>Meilleure Série : <strong id="profile-max-streak">0</strong> jours</p>
+            </div>
+            <button onclick="shareProfile()">Partager mon Profil ! 🚀</button>
+        </section>
 
         <div id="settings-menu" class="settings-menu hidden">
             <h2>Réglages de l'Application</h2>
@@ -28,17 +53,25 @@
             <div class="setting-item">
                 <label for="haptics-toggle">Vibrations (Haptics)</label>
                 <input type="checkbox" id="haptics-toggle" onchange="saveSettings()">
-                <span class="info-tip" title="Retour physique lors de l'accomplissement des tâches.">ⓘ</span>
             </div>
 
             <div class="setting-item social-setting">
-                <h3>Partage Social (BÊTA)</h3>
-                <label for="social-share-toggle">Partager mes stats avec mes amis</label>
+                <label for="social-share-toggle">Synchronisation Firebase</label>
                 <input type="checkbox" id="social-share-toggle" onchange="saveSettings()">
-                <p class="warning-text">⚠️ Cette fonctionnalité nécessite un serveur et est désactivée sans backend.</p>
-                <button onclick="shareLocalStats()" class="share-btn">Partager mon lien de stats (local)</button>
+                <p class="warning-text">⚠️ Active la synchronisation de vos tâches sur Firebase.</p>
             </div>
+            
+            <h3>Sauvegarde et Restauration</h3>
+            <button onclick="exportData()">Exporter les données (JSON) ⬇️</button>
+            <label for="import-file" class="button import-btn">Importer les données ⬆️</label>
+            <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="display: none;">
         </div>
+        
+        <div class="main-actions">
+            <button onclick="toggleSection('shop-section')">🛒 Boutique</button>
+            <button onclick="toggleSection('history-section')">📊 Statistiques</button>
+        </div>
+
         <section class="task-input">
             <input type="text" id="new-task" placeholder="Ajouter une nouvelle tâche..." required>
             <select id="task-difficulty">
@@ -46,16 +79,47 @@
                 <option value="medium" selected>Moyen (+3pts)</option>
                 <option value="hard">Difficile (+5pts)</option>
             </select>
+
+            <div class="task-options">
+                <label>
+                    <input type="checkbox" id="is-recurring"> Récurent
+                </label>
+
+                <div id="recurrence-options" style="display: none;">
+                    Tous les <input type="number" id="recurrence-value" value="1" min="1" style="width: 40px;"> 
+                    <select id="recurrence-type">
+                        <option value="daily">jour(s)</option>
+                        <option value="weekly">semaine(s)</option>
+                        <option value="monthly">mois</option>
+                        <option value="yearly">année(s)</option>
+                    </select>
+                </div>
+                
+                <label>
+                    Heure limite : <input type="time" id="due-time">
+                </label>
+            </div>
             <button onclick="addTask()">Ajouter</button>
         </section>
 
         <section class="task-list">
             <h2>Tâches à faire</h2>
+            
+            <div class="tasks-controls">
+                <button onclick="setTaskFilter('all')" id="filter-all" class="active">Toutes</button>
+                <button onclick="setTaskFilter('todo')" id="filter-todo">À Faire Seulement</button>
+                <select onchange="setTaskSort(this.value)">
+                    <option value="default">Trier par Défaut</option>
+                    <option value="difficulty">Difficulté</option>
+                    <option value="time">Urgence</option>
+                </select>
+            </div>
+
             <ul id="tasks-list">
                 </ul>
         </section>
 
-        <section class="history-section">
+        <section class="history-section" id="history-section">
             <h2>Historique & Statistiques</h2>
 
             <div class="history-toggle">
@@ -70,14 +134,20 @@
 
             <h3>Tâches Archivées</h3>
             <ul id="archive-list"></ul>
-
+            
             <h3>Historique des Points (<span id="history-period-title">Jour</span>)</h3>
             <ul id="points-history-list"></ul>
         </section>
     </div>
 
+    <script>
+        document.getElementById('is-recurring').addEventListener('change', function() {
+            document.getElementById('recurrence-options').style.display = this.checked ? 'inline-flex' : 'none';
+        });
+    </script>
+
     <script type="module">
-        // Votre configuration Firebase
+        // Votre configuration Firebase (Vérifiez votre API Key)
         const firebaseConfig = {
             apiKey: "AIzaSyAxwNs55WQQCTv0ShN_g4jb1_5PegPjgso",
             authDomain: "dino-meilleur-score-classement.firebaseapp.com",

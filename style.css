@@ -207,3 +207,119 @@ header h1 {
 #archive-list li:last-child {
     border-bottom: none;
 }
+/* (Conserver le code CSS existant) */
+
+/* Nouveaux styles pour le menu de réglages */
+
+.settings-btn {
+    position: absolute; /* Positionner le bouton d'engrenage */
+    top: 25px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.settings-btn:hover {
+    transform: rotate(45deg);
+}
+
+.settings-menu {
+    background-color: var(--card-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.settings-menu.hidden {
+    display: none;
+}
+
+.settings-menu h2 {
+    color: var(--secondary-color);
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.social-setting {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.setting-item label {
+    font-weight: bold;
+}
+
+.warning-text {
+    font-size: 0.8em;
+    color: #FF9800;
+    margin-top: 5px;
+}
+
+/* Style de l'interrupteur */
+input[type="checkbox"] {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    -webkit-appearance: none;
+    background: #c6c6c6;
+    outline: none;
+    border-radius: 20px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    transition: 0.5s;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+    background: var(--primary-color);
+}
+
+input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    top: 0;
+    left: 0;
+    background: var(--card-color);
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: 0.5s;
+}
+
+input[type="checkbox"]:checked::before {
+    left: 20px;
+}
+
+.share-btn {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.share-btn:hover {
+    background-color: #0d8bf0;
+}

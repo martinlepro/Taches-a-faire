@@ -1,5 +1,41 @@
 <!DOCTYPE html>
 <html lang="fr">
+    <script type="module">
+    // Votre configuration Firebase
+const firebaseConfig = {
+
+  apiKey: "AIzaSyAxwNs55WQQCTv0ShN_g4jb1_5PegPjgso",
+
+  authDomain: "dino-meilleur-score-classement.firebaseapp.com",
+
+  databaseURL: "https://dino-meilleur-score-classement-default-rtdb.europe-west1.firebasedatabase.app",
+
+  projectId: "dino-meilleur-score-classement",
+
+  storageBucket: "dino-meilleur-score-classement.firebasestorage.app",
+
+  messagingSenderId: "879037843002",
+
+  appId: "1:879037843002:web:a40483052bcb5e73fad703",
+
+  measurementId: "G-HTR6QG5493"
+};
+
+    // Importer les modules de l'Application et de la Realtime Database
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Rendre les fonctions RTDB accessibles globalement
+    window.db = db;
+    window.ref = ref;
+    window.set = set;
+    window.onValue = onValue;
+    window.push = push;
+    window.remove = remove;
+    </script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

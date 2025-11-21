@@ -38,19 +38,21 @@ header h1 {
     display: flex;
     justify-content: space-around;
     padding: 10px 0;
+    font-size: 0.9em;
 }
 
 .stats p {
-    font-size: 1.1em;
     font-weight: bold;
 }
 
 #current-streak { color: var(--primary-color); }
-#total-points { color: #FF9800; } /* Couleur pour les points */
+#max-streak { color: #8A2BE2; } /* Violet pour le record */
+#total-points { color: #FF9800; } /* Orange pour les points */
 
 /* Entrée de tâche */
 .task-input {
     display: flex;
+    gap: 10px; /* Ajout d'espace entre les éléments */
     margin: 20px 0;
     background-color: var(--card-color);
     padding: 10px;
@@ -58,13 +60,16 @@ header h1 {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.task-input input[type="text"] {
-    flex-grow: 1;
+.task-input input[type="text"],
+.task-input select {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
-    margin-right: 10px;
     font-size: 1em;
+}
+
+.task-input input[type="text"] {
+    flex-grow: 1;
 }
 
 .task-input button {
@@ -111,18 +116,34 @@ header h1 {
     opacity: 0.7;
 }
 
+.task-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.task-difficulty {
+    font-size: 0.8em;
+    color: #999;
+}
+
 .task-actions button {
-    margin-left: 10px;
+    margin-left: 5px;
     padding: 8px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
+    transition: background-color 0.2s;
 }
 
 .complete-btn {
     background-color: var(--primary-color);
     color: white;
+}
+
+.edit-btn {
+    background-color: #FFC107;
+    color: var(--text-color);
 }
 
 .delete-btn {
@@ -165,17 +186,24 @@ header h1 {
     background-color: #aaa;
 }
 
-#streak-history-list, #points-history-list {
+#streak-history-list, #points-history-list, #archive-list {
     list-style: none;
     padding: 0;
 }
 
-#streak-history-list li, #points-history-list li {
+#streak-history-list li, #points-history-list li, #archive-list li {
     padding: 8px;
     border-bottom: 1px dashed #eee;
     font-size: 0.9em;
 }
 
-#streak-history-list li:last-child, #points-history-list li:last-child {
+#archive-list li {
+    font-style: italic;
+    color: #666;
+}
+
+#streak-history-list li:last-child, 
+#points-history-list li:last-child,
+#archive-list li:last-child {
     border-bottom: none;
 }

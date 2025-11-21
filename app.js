@@ -2,33 +2,40 @@
 
 const STORAGE_KEYS = {
     TASKS: 'todoApp.tasks',
-    ARCHIVE: 'todoApp.archive', // Nouvelle clé pour l'archive
+    ARCHIVE: 'todoApp.archive',
     STREAK: 'todoApp.currentStreak',
-    MAX_STREAK: 'todoApp.maxStreak', // Nouvelle clé pour le record
+    MAX_STREAK: 'todoApp.maxStreak',
     TOTAL_POINTS: 'todoApp.totalPoints',
     STREAK_HISTORY: 'todoApp.streakHistory',
     POINTS_HISTORY: 'todoApp.pointsHistory',
     LAST_CHECK: 'todoApp.lastCheckDate',
+    SETTINGS: 'todoApp.settings' // Nouvelle clé pour les réglages
 };
 
 const POINTS_CONFIG = {
     easy: 1,
     medium: 3,
     hard: 5,
-    newStreakRecord: 10 // Points pour un nouveau record de série
+    newStreakRecord: 10
 };
 
-const RESET_HOUR = 0; // Réinitialisation à 0h00
-const NOTIFICATION_HOUR = 10; // Notification à 10h00
+const RESET_HOUR = 0; 
+const NOTIFICATION_HOUR = 10; 
 
 let tasks = [];
 let archive = [];
 let currentStreak = 0;
-let maxStreak = 0; // Initialisation du record
+let maxStreak = 0;
 let totalPoints = 0;
 let streakHistory = [];
 let pointsHistory = [];
 let lastCheckDate = null;
+
+// Nouveaux réglages par défaut
+let appSettings = {
+    hapticsEnabled: true,
+    socialShareEnabled: false
+};
 
 // --- 2. Fonctions de Stockage Local ---
 
@@ -42,6 +49,10 @@ function loadData() {
     streakHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.STREAK_HISTORY) || '[]');
     pointsHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.POINTS_HISTORY) || '[]');
     lastCheckDate = localStorage.getItem(STORAGE_KEYS.LAST_CHECK);
+    
+    // Charger les réglages
+    const loadedSettings = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS) || '{}');
+    appSettings = { ...appSettings, ...loadedSettings };
 }
 
 /** Sauvegarde les données dans localStorage. */
@@ -54,20 +65,41 @@ function saveData() {
     localStorage.setItem(STORAGE_KEYS.STREAK_HISTORY, JSON.stringify(streakHistory));
     localStorage.setItem(STORAGE_KEYS.POINTS_HISTORY, JSON.stringify(pointsHistory));
     localStorage.setItem(STORAGE_KEYS.LAST_CHECK, lastCheckDate);
+    
     updateUI();
 }
 
-// --- 3. Logique de l'Application (Tâches, Série, Points) ---
+// --- 3. Gestion des Réglages (Nouveau) ---
+
+/** Sauvegarde l'état des réglages dans localStorage. */
+function saveSettings() {
+    appSettings.hapticsEnabled = document.getElementById('haptics-toggle').checked;
+    appSettings.socialShareEnabled = document.getElementById('social-share-toggle').checked;
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(appSettings));
+    alert('Réglages sauvegardés !');
+}
+
+/** Charge les réglages dans le menu lors de l'initialisation. */
+function loadSettingsUI() {
+    document.getElementById('haptics-toggle').checked = appSettings.hapticsEnabled;
+    document.getElementById('social-share-toggle').checked = appSettings.socialShareEnabled;
+}
+
+/** Bascule l'affichage du menu de réglages. */
+function toggleSettingsMenu() {
+    const menu = document.getElementById('settings-menu');
+    menu.classList.toggle('hidden');
+}
+
+// --- 4. Logique de l'Application (Tâches, Série, Points) ---
 
 /** Vérifie et gère la réinitialisation quotidienne à 0h00 (heure de Paris). */
 function checkDailyReset() {
     const now = new Date();
     const todayStr = now.toLocaleDateString('fr-FR');
     
-    // Convertir la date stockée en objet Date pour la comparaison
     const lastCheckTime = lastCheckDate ? new Date(lastCheckDate.split('/').reverse().join('-')) : null;
 
-    // Déterminer si nous sommes sur un nouveau jour par rapport à la dernière vérification
     const isNewDay = !lastCheckTime || (now.setHours(RESET_HOUR, 0, 0, 0) > lastCheckTime.setHours(RESET_HOUR, 0, 0, 0));
     
     if (isNewDay) {
@@ -76,24 +108,20 @@ function checkDailyReset() {
         const tasksToCompleteCount = tasks.filter(task => !task.completed).length;
 
         if (tasks.length > 0 && !allCompleted) {
-            // La série est brisée si des tâches existaient et n'étaient pas finies
             if (currentStreak > 0) {
                 streakHistory.push({ date: lastCheckDate, streak: currentStreak });
                 alert(`Dommage ! Votre série de ${currentStreak} jour(s) est brisée. ${tasksToCompleteCount} tâches non finies !`);
             }
             currentStreak = 0; 
         } else if (tasks.length > 0 && allCompleted) {
-            // Victoire si toutes les tâches sont complétées
             currentStreak++;
         }
-        // Si aucune tâche, la série reste inchangée (ni brisée, ni augmentée)
 
         // --- 2. Mise à jour du Record de Série (Max Streak) et Points ---
         if (currentStreak > maxStreak) {
-            maxStreak = currentStreak; // Nouveau record
+            maxStreak = currentStreak; 
             totalPoints += POINTS_CONFIG.newStreakRecord;
             
-            // Enregistrement de l'historique des points
             pointsHistory.push({ 
                 date: todayStr, 
                 points: POINTS_CONFIG.newStreakRecord, 
@@ -104,7 +132,6 @@ function checkDailyReset() {
         }
         
         // --- 3. Réinitialisation des tâches pour le nouveau jour ---
-        // Conserver les tâches mais les marquer comme non complétées
         tasks = tasks.map(task => ({ ...task, completed: false }));
 
         // --- 4. Mettre à jour la date de dernière vérification ---
@@ -143,18 +170,21 @@ function toggleTaskCompletion(taskId) {
         task.completed = !wasCompleted;
 
         if (!wasCompleted) {
-            // Tâche complétée: Ajouter les points
             totalPoints += task.points;
             pointsHistory.push({ 
                 date: new Date().toLocaleDateString('fr-FR'), 
                 points: task.points, 
                 reason: `Tâche complétée: "${task.text}"` 
             });
-            triggerHaptics('success');
+            // Haptics activés si le réglage est ON
+            if (appSettings.hapticsEnabled) {
+                 triggerHaptics('success');
+            }
         } else {
-            // Tâche annulée: Retirer les points (optionnel, mais juste)
             totalPoints -= task.points;
-            triggerHaptics('error');
+            if (appSettings.hapticsEnabled) {
+                 triggerHaptics('error');
+            }
         }
         saveData();
     }
@@ -172,13 +202,12 @@ function editTask(taskId) {
     }
 }
 
-/** Archive une tâche (remplace la suppression simple). */
+/** Archive une tâche. */
 function archiveTask(taskId) {
     const taskIndex = tasks.findIndex(t => t.id === taskId);
     if (taskIndex !== -1) {
         const [taskToArchive] = tasks.splice(taskIndex, 1);
         
-        // Ajouter la tâche à l'archive
         archive.push({
             ...taskToArchive,
             archivedDate: new Date().toLocaleDateString('fr-FR')
@@ -188,7 +217,40 @@ function archiveTask(taskId) {
     }
 }
 
-// --- 4. Mise à Jour de l'Interface Utilisateur (UI) ---
+// --- 5. Partage Social (Simulé) (Nouveau) ---
+
+/** Génère un lien de partage des stats locales (Simulation). */
+function shareLocalStats() {
+    // Collecter les stats essentielles
+    const stats = {
+        currentStreak: currentStreak,
+        maxStreak: maxStreak,
+        totalPoints: totalPoints,
+        lastUpdate: new Date().toLocaleString('fr-FR')
+    };
+
+    const statsJSON = JSON.stringify(stats);
+    // Encoder les données pour les mettre dans l'URL (simulé)
+    const encodedStats = btoa(statsJSON); 
+
+    // Créer un lien fictif
+    const shareLink = `Mon Appli://stats?data=${encodedStats}`; 
+
+    // Utiliser l'API de partage native du mobile
+    if (navigator.share) {
+        navigator.share({
+            title: 'Mes Stats de Gamification !',
+            text: `Je suis à ${currentStreak} jours de série et ${totalPoints} points ! Vois mes stats :`,
+            url: shareLink
+        }).then(() => console.log('Partage réussi'))
+          .catch((error) => console.log('Erreur de partage', error));
+    } else {
+        // Fallback pour les navigateurs non compatibles (ou si l'app n'est pas native)
+        prompt("Copiez ce lien pour partager vos stats (simulé) :", shareLink);
+    }
+}
+
+// --- 6. Mise à Jour de l'Interface Utilisateur (UI) ---
 
 /** Met à jour tous les éléments d'affichage. */
 function updateUI() {
@@ -218,7 +280,10 @@ function updateUI() {
                     ${task.completed ? 'Annuler' : 'Fait ✅'}
                 </button>
                 <button class="edit-btn" onclick="editTask(${task.id})">Modifier ✏️</button>
-                <button class="delete-btn" onclick="archiveTask(${task.id})">Archiver 📦</button>
+                
+                ${task.completed ? 
+                    `<button class="delete-btn" onclick="archiveTask(${task.id})">Archiver 📦</button>` 
+                    : ''}
             </div>
         `;
         taskListElement.appendChild(li);
@@ -245,12 +310,11 @@ function updateUI() {
     if (archive.length === 0) {
         archiveListElement.innerHTML = '<li>L\'archive est vide.</li>';
     }
-    archive.slice(-5).reverse().forEach(item => { // Afficher les 5 dernières archivées
+    archive.slice(-5).reverse().forEach(item => { 
         const li = document.createElement('li');
-        li.textContent = `${item.archivedDate}: "${item.text}"`;
+        li.textContent = `${item.archivedDate}: "${item.text}" - ${item.completed ? '✅ Fait' : '❌ Non fait'}`;
         archiveListElement.appendChild(li);
     });
-
 
     // 5. Afficher l'historique des points pour la période par défaut (daily)
     displayHistory('daily'); 
@@ -267,7 +331,6 @@ function displayHistory(period) {
     const now = new Date();
 
     pointsHistory.forEach(item => {
-        // Convertir 'JJ/MM/AAAA' en Date
         const parts = item.date.split('/');
         const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
         let isIncluded = false;
@@ -305,14 +368,15 @@ function displayHistory(period) {
     });
 }
 
-// --- 5. Logique des Notifications et Haptics ---
+// --- 7. Logique des Notifications et Haptics ---
 
 /** Déclenche un retour haptique (vibration) via le pont Median.co. */
 function triggerHaptics(type = 'success') {
-    // Cette fonction NE fonctionnera QUE lorsque l'application est compilée avec Median.co
-    // et que le "JavaScript Bridge" est actif.
+    // Vérifie si les Haptics sont activés dans les réglages
+    if (!appSettings.hapticsEnabled) return; 
+
+    // Utilisation du pont Median.co
     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.gonative) {
-        // 'success' (tâche faite), 'error' (tâche annulée/série brisée), 'impactLight' (simple clic)
         let feedbackType = 'impactLight'; 
         if (type === 'success') feedbackType = 'success';
         if (type === 'error') feedbackType = 'error';
@@ -324,11 +388,9 @@ function triggerHaptics(type = 'success') {
             }
         });
     }
-    // Note: Pour Android, le pont est souvent un peu différent, mais Median.co peut le gérer.
 }
 
-
-/** Demande la permission de notification et planifie l'affichage (seulement si l'appli est ouverte). */
+/** [Fonctions de notification inchangées...] */
 function showObjectiveNotification() {
     if ('Notification' in window && Notification.permission === 'granted') {
         new Notification("✨ Objectif Quotidien", {
@@ -338,13 +400,8 @@ function showObjectiveNotification() {
     } else if ('Notification' in window && Notification.permission !== 'denied') {
         Notification.requestPermission();
     }
-    
-    // IMPORTANT: Pour une application native (APK), configurez la notification récurrente
-    // DIRECTEMENT dans l'App Studio de Median.co à l'heure souhaitée (10h00 France) pour qu'elle
-    // s'affiche même lorsque l'application est fermée.
 }
 
-/** Vérifie si c'est l'heure de la notification. */
 function checkNotificationTime() {
     const now = new Date();
     const currentHour = now.getHours();
@@ -360,19 +417,18 @@ function checkNotificationTime() {
     }
 }
 
-// --- 6. Exécution au Chargement ---
+// --- 8. Exécution au Chargement ---
 
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     checkDailyReset(); 
+    loadSettingsUI(); // Charger les réglages dans le menu
     updateUI();
     
-    // Tentative de demande de permission de notification au démarrage
     if ('Notification' in window && Notification.permission !== 'denied') {
         Notification.requestPermission();
     }
     
-    // Vérification de l'heure de la notification toutes les heures
     setInterval(checkNotificationTime, 60 * 60 * 1000);
-    checkNotificationTime(); // Première vérification immédiate
+    checkNotificationTime();
 });

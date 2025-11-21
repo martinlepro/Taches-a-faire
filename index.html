@@ -12,12 +12,18 @@
             <h1>Liste de Tâches 📝</h1>
             <div class="stats">
                 <p>Série Actuelle : <span id="current-streak">0</span> 🔥</p>
+                <p>Record de Série : <span id="max-streak">0</span> 👑</p>
                 <p>Total Points : <span id="total-points">0</span> 🌟</p>
             </div>
         </header>
 
         <section class="task-input">
             <input type="text" id="new-task" placeholder="Ajouter une nouvelle tâche..." required>
+            <select id="task-difficulty">
+                <option value="easy">Facile (+1pt)</option>
+                <option value="medium" selected>Moyen (+3pts)</option>
+                <option value="hard">Difficile (+5pts)</option>
+            </select>
             <button onclick="addTask()">Ajouter</button>
         </section>
 
@@ -38,12 +44,13 @@
             </div>
 
             <h3>Séries de Victoires Passées</h3>
-            <ul id="streak-history-list">
-                </ul>
+            <ul id="streak-history-list"></ul>
+
+            <h3>Tâches Archivées</h3>
+            <ul id="archive-list"></ul>
 
             <h3>Historique des Points (<span id="history-period-title">Jour</span>)</h3>
-            <ul id="points-history-list">
-                </ul>
+            <ul id="points-history-list"></ul>
         </section>
     </div>
 

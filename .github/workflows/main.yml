@@ -1,0 +1,39 @@
+# .github/workflows/main.yml
+name: Flutter Web CI/CD
+
+# Déclenche l'action quand vous poussez sur la branche principale (main)
+on:
+  push:
+    branches:
+      - main
+  # Permet de lancer le workflow manuellement
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Obtenir le code source
+      - uses: actions/checkout@v4
+      
+      # 2. Configurer l'environnement Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      # 3. Installer les dépendances (votre pubspec.yaml)
+      - run: flutter pub get
+
+      # 4. Compiler le projet pour le web
+      # Important : l'option --base-href est CRUCIALE pour GitHub Pages
+      - run: flutter build web --release --base-href /<NOM-DE-VOTRE-REPO>/
+
+      # 5. Déployer les fichiers compilés (build/web) sur GitHub Pages
+      - uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          # La branche où les fichiers compilés seront stockés
+          publish_branch: gh-pages

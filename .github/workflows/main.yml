@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (CORRECTION DÉFINITIVE DU NOM D'ARTEFACT)
+# .github/workflows/main.yml (CORRECTION DÉFINITIVE AVEC INITIALISATION WEB)
 
 name: Flutter Web CI/CD
 
@@ -22,20 +22,30 @@ jobs:
         with:
           channel: 'stable'
           
+      # ----------------------------------------------------
+      # ÉTAPE NÉCESSAIRE : Configuration de la plateforme Web
+      # Ceci résout l'erreur 'This project is not configured for the web.'
+      # ----------------------------------------------------
+      - name: Configure Web Platform
+        run: flutter create . --platforms web
+        
       - name: Flutter Pub Get
-        run: flutter pub get
+        # Nécessaire après "flutter create" et pour les dépendances
+        run: flutter pub get 
 
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
-      # ----------------------------------------------------
-      # NOUVEAU: Ajout du nom 'github-pages' à l'artefact.
-      # ----------------------------------------------------
+      # Étape conservée pour corriger l'erreur de chargement 404/Assets vue précédemment
+      - name: Fix Base Href in index.html
+        run: |
+          sed -i 's|</head>|<base href="/Taches-a-faire/">\n&|' build/web/index.html
+
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'build/web'
-          name: github-pages # Nom CRUCIAL attendu par l'action de déploiement
+          name: github-pages # Nom CRUCIAL pour le déploiement Pages
           
   deploy:
     environment:

@@ -1,3 +1,4 @@
+
 // lib/models/profile.dart
 import 'dart:math'; // Pour la fonction sqrt()
 

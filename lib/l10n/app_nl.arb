@@ -1,0 +1,12 @@
+{
+    "@@locale": "nl",
+    "appTitle": "Gamified Takenlijst",
+    "tasksTabTitle": "Taken",
+    "shopTabTitle": "Winkel",
+    "statsTabTitle": "Statistieken",
+    "profileTabTitle": "Profiel",
+    "socialTabTitle": "Sociaal",
+    "addTaskTitle": "Nieuwe taak toevoegen",
+    "todoListTitle": "Te doen taken ({count})",
+    "addHint": "Nieuwe taak toevoegen..."
+}

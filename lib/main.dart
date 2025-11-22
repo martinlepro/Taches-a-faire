@@ -48,21 +48,21 @@ class MainScreen extends StatefulWidget {
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
-
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   // Liste des écrans à afficher pour chaque onglet.
+  // 3. Remplacer les placeholders (Text) par les classes d'écran réelles
   static const List<Widget> _screens = <Widget>[
-    // Onglet Tâches
-    Center(child: Text('1. Écran des Tâches (TODO List)', style: TextStyle(fontSize: 20))), 
-    // Onglet Boutique
-    Center(child: Text('2. Écran de la Boutique', style: TextStyle(fontSize: 20))),
-    // Onglet Statistiques
+    // Onglet Tâches (Utilise le nouvel écran)
+    TasksScreen(), 
+    // Onglet Boutique (Utilise le nouvel écran)
+    ShopScreen(),
+    // Onglet Statistiques (Placeholders, à créer plus tard)
     Center(child: Text('3. Écran des Statistiques', style: TextStyle(fontSize: 20))),
-    // Onglet Profil
+    // Onglet Profil (Placeholders, à créer plus tard)
     Center(child: Text('4. Écran du Profil', style: TextStyle(fontSize: 20))),
-    // Onglet Social
+    // Onglet Social (Placeholders, à créer plus tard)
     Center(child: Text('5. Écran Social (à développer)', style: TextStyle(fontSize: 20))),
   ];
 

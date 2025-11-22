@@ -11,10 +11,14 @@ environment:
 # Les dépendances (packages) que votre application utilise
 dependencies:
   flutter:
-   sdk: flutter 
-  flutter_localizations: # AJOUTER CELA 
-    sdk: flutter # ET CELA
+    sdk: flutter
   
+  # ------------------------------------------------
+  # --- DÉPENDANCES POUR L'INTERNATIONALISATION (i18n) ---
+  flutter_localizations: # NÉCESSAIRE pour les traductions
+    sdk: flutter         # NÉCESSAIRE pour les traductions
+  # ------------------------------------------------
+
   # --- Dépendances Cruciales pour votre App ---
   
   # 1. Gestion de l'état (ChangeNotifier)
@@ -38,17 +42,15 @@ dev_dependencies:
 # La section flutter sert à déclarer les ressources (assets) comme les images et les polices
 flutter:
   uses-material-design: true
-  generate: true 
+  
+  # --------------------------------------------------
+  # --- CONFIGURATION POUR L'INTERNATIONALISATION ---
+  generate: true # TRÈS IMPORTANT : Active la génération de code pour l'i18n
+  # --------------------------------------------------
 
   # Si vous ajoutez des images, décommentez la section suivante :
   # assets:
   #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
-
-  # Pour utiliser des polices personnalisées :
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
+  #
+  # Pour de plus amples informations sur la section assets, consultez la documentation
+  # à l'adresse suivante : https://flutter.dev/assets-and-images.

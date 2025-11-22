@@ -1,13 +1,10 @@
 // lib/main.dart
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Nécessite l'import
+import 'package:provider/provider.dart'; // NÉCESSAIRE
 import 'screens/tasks_screen.dart'; 
 import 'screens/shop_screen.dart';
 import 'models/task.dart'; 
 import 'models/profile.dart'; 
-
-// 1. Importer le nouvel AppState
 import 'state/app_state.dart'; 
 
 
@@ -15,15 +12,11 @@ void main() {
   // Le point d'entrée crée et fournit l'état AppState à tous les widgets enfants
   runApp(
     ChangeNotifierProvider(
-      // 2. Créer l'instance de la classe d'état
       create: (context) => AppState(), 
       child: const GamifiedTodoApp(),
     ),
   );
 }
-
-// ... (Le reste du fichier MainScreen, etc. reste inchangé)
-// Assurez-vous d'avoir bien importé TasksScreen et ShopScreen dans MainScreen si ce n'est pas déjà fait.
 
 
 class GamifiedTodoApp extends StatelessWidget {
@@ -33,7 +26,6 @@ class GamifiedTodoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Ma To-Do List Gamifiée',
-      // Définition du thème de l'application
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         primaryColor: Colors.deepPurple,
@@ -43,7 +35,6 @@ class GamifiedTodoApp extends StatelessWidget {
           centerTitle: true,
         ),
         useMaterial3: true,
-        // Un fond léger pour le Scaffold
         scaffoldBackgroundColor: Colors.grey[50], 
       ),
       home: const MainScreen(),
@@ -60,21 +51,16 @@ class MainScreen extends StatefulWidget {
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
+
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   // Liste des écrans à afficher pour chaque onglet.
-  // 3. Remplacer les placeholders (Text) par les classes d'écran réelles
   static const List<Widget> _screens = <Widget>[
-    // Onglet Tâches (Utilise le nouvel écran)
-    TasksScreen(), 
-    // Onglet Boutique (Utilise le nouvel écran)
-    ShopScreen(),
-    // Onglet Statistiques (Placeholders, à créer plus tard)
+    TasksScreen(), // Écran réel
+    ShopScreen(), // Écran réel
     Center(child: Text('3. Écran des Statistiques', style: TextStyle(fontSize: 20))),
-    // Onglet Profil (Placeholders, à créer plus tard)
     Center(child: Text('4. Écran du Profil', style: TextStyle(fontSize: 20))),
-    // Onglet Social (Placeholders, à créer plus tard)
     Center(child: Text('5. Écran Social (à développer)', style: TextStyle(fontSize: 20))),
   ];
 
@@ -101,21 +87,19 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       
-      // Contenu de l'écran actuellement sélectionné
       body: _screens.elementAt(_selectedIndex),
       
-      // NOUVEAU : BottomAppBar pour le style arrondi et l'ombre
+      // Barre de navigation personnalisée avec fond blanc arrondi
       bottomNavigationBar: BottomAppBar(
-        color: Colors.transparent, // Rendre le fond du BottomAppBar transparent
-        elevation: 0, // Enlever l'ombre par défaut
+        color: Colors.transparent, 
+        elevation: 0, 
         child: Container(
-          height: 60, // Hauteur de la barre
-          margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0), // Marge pour l'effet "flottant"
+          height: 60, 
+          margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0), 
           decoration: BoxDecoration(
-            color: Colors.white, // Fond blanc
-            borderRadius: BorderRadius.circular(25.0), // Bord arrondi
+            color: Colors.white, 
+            borderRadius: BorderRadius.circular(25.0), 
             boxShadow: [
-              // Légère ombre pour mettre en valeur le rectangle
               BoxShadow(
                 color: Colors.black.withOpacity(0.15),
                 spreadRadius: 2,
@@ -148,13 +132,10 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ],
             currentIndex: _selectedIndex,
-            // Couleurs
             selectedItemColor: Theme.of(context).primaryColor,
             unselectedItemColor: Colors.grey,
             onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed, // Important pour 5 éléments
-            
-            // Propriétés pour un look épuré dans le conteneur :
+            type: BottomNavigationBarType.fixed, 
             backgroundColor: Colors.transparent, 
             elevation: 0, 
             showUnselectedLabels: true,

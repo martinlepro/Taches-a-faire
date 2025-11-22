@@ -1,12 +1,12 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'dart:math'; // Pour la fonction sqrt() de calculateLevel
-
-// Importez vos modèles (Task, Profile, etc.)
-// import 'models/task.dart'; 
-// ...
+// Note: Le package 'dart:math' n'est plus nécessaire ici car nous avons enlevé le calcul du niveau pour la démo.
+// Importez vos futurs modèles ici:
+// import 'models/task.dart';
+// import 'models/profile.dart'; 
 
 void main() {
+  // Lancer l'application, l'état sera géré par un Provider ou BLoC dans une application réelle.
   runApp(const GamifiedTodoApp());
 }
 
@@ -17,9 +17,17 @@ class GamifiedTodoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Ma To-Do List Gamifiée',
+      // Définition d'un thème clair pour l'application
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
+        primaryColor: Colors.deepPurple,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.deepPurple,
+          foregroundColor: Colors.white,
+          centerTitle: true,
+        ),
         useMaterial3: true,
+        scaffoldBackgroundColor: Colors.grey[50],
       ),
       home: const MainScreen(),
     );
@@ -39,14 +47,19 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // Remplace l'ancienne structure HTML/JS
+  // Liste des écrans à afficher pour chaque onglet.
+  // Ces classes de Widgets sont à créer par la suite (e.g., TasksScreen(), ShopScreen(), etc.)
   static const List<Widget> _screens = <Widget>[
-    // Ces classes de Widgets sont à créer :
-    Text('Écran des Tâches (TODO)'), 
-    Text('Écran de la Boutique'),
-    Text('Écran des Statistiques'),
-    Text('Écran du Profil'),
-    Text('Écran Social'),
+    // Onglet Tâches
+    Center(child: Text('1. Écran des Tâches (TODO List)', style: TextStyle(fontSize: 20))), 
+    // Onglet Boutique
+    Center(child: Text('2. Écran de la Boutique', style: TextStyle(fontSize: 20))),
+    // Onglet Statistiques
+    Center(child: Text('3. Écran des Statistiques', style: TextStyle(fontSize: 20))),
+    // Onglet Profil
+    Center(child: Text('4. Écran du Profil', style: TextStyle(fontSize: 20))),
+    // Onglet Social
+    Center(child: Text('5. Écran Social (à développer)', style: TextStyle(fontSize: 20))),
   ];
 
   void _onItemTapped(int index) {
@@ -64,18 +77,19 @@ class _MainScreenState extends State<MainScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // Action pour ouvrir le menu Réglages (Modal/Drawer)
+              // Dans Flutter, cela ouvrirait une Modal ou un Drawer
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Ouverture des Réglages...'))
+              );
             },
           ),
         ],
       ),
       
       // Contenu de l'écran actuellement sélectionné
-      body: Center(
-        child: _screens.elementAt(_selectedIndex),
-      ),
+      body: _screens.elementAt(_selectedIndex),
       
-      // Barres de navigation par onglets (Bottom Navigation Bar)
+      // Barre de navigation par onglets (Bottom Navigation Bar)
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -100,10 +114,11 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.deepPurple,
+        // Couleurs
+        selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // Important pour 5 éléments
+        type: BottomNavigationBarType.fixed, // Nécessaire pour 5+ éléments
       ),
     );
   }

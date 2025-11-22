@@ -1,0 +1,12 @@
+{
+    "@@locale": "de",
+    "appTitle": "Gamifizierte To-Do-Liste",
+    "tasksTabTitle": "Aufgaben",
+    "shopTabTitle": "Shop",
+    "statsTabTitle": "Statistiken",
+    "profileTabTitle": "Profil",
+    "socialTabTitle": "Sozial",
+    "addTaskTitle": "Neue Aufgabe hinzufügen",
+    "todoListTitle": "Zu erledigende Aufgaben ({count})",
+    "addHint": "Neue Aufgabe hinzufügen..."
+}

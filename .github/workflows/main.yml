@@ -1,44 +1,44 @@
-# .github/workflows/main.yml
+# .github/workflows/main.yml (VERSION FINALE CORRIGÉE)
 
 name: Flutter Web CI/CD
 
+# Déclenche l'action quand vous poussez sur la branche principale (main)
 on:
   push:
     branches:
       - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
+  # Permet de lancer le workflow manuellement
+  workflow_dispatch:
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      # 1. Obtenir le code source
+      # 1. Obtenir le code source (à la racine)
       - uses: actions/checkout@v4
-
+      
       # 2. Configurer l'environnement Flutter
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           
-      # 3. Installation des dépendances
+      # 3. Installer les dépendances (fonctionne à la racine)
       - name: Flutter Pub Get
         run: flutter pub get
-        working-directory: Taches-a-faire-main # <-- CORRECTION 1
 
-      # 4. Compiler le projet pour le web
-      - name: Build Web
+      # 4. Compiler le projet pour le web (fonctionne à la racine)
+      # L'option --base-href est CRUCIALE et doit correspondre au nom de votre dépôt
+      - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
-        working-directory: Taches-a-faire-main # <-- CORRECTION 2
 
-      # 5. Déploiement sur GitHub Pages
+      # 5. Déployer les fichiers compilés (build/web) sur GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./Taches-a-faire-main/build/web # <-- CORRECTION 3 (Cible le dossier de sortie dans le sous-dossier)
-          cname: your-custom-domain.com # Supprimez ou laissez cette ligne si vous n'avez pas de nom de domaine personnalisé
+          # Le chemin du dossier de sortie est bien le dossier 'build/web' à la racine
+          publish_dir: ./build/web
+          # La branche où les fichiers compilés seront stockés
+          publish_branch: gh-pages

@@ -11,7 +11,9 @@ environment:
 # Les dépendances (packages) que votre application utilise
 dependencies:
   flutter:
-    sdk: flutter
+   sdk: flutter 
+  flutter_localizations: # AJOUTER CELA 
+    sdk: flutter # ET CELA
   
   # --- Dépendances Cruciales pour votre App ---
   
@@ -36,6 +38,7 @@ dev_dependencies:
 # La section flutter sert à déclarer les ressources (assets) comme les images et les polices
 flutter:
   uses-material-design: true
+  generate: true 
 
   # Si vous ajoutez des images, décommentez la section suivante :
   # assets:

@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (CORRECTION DE L'INDENTATION)
+# .github/workflows/main.yml (CORRECTION DÉFINITIVE AVEC GÉNÉRATION EXPLICITE)
 
 name: Flutter Web CI/CD
 
@@ -23,21 +23,27 @@ jobs:
         with:
           channel: 'stable'
           
-      # --- CORRECTION APPLIQUÉE ICI ---
-      # Cette étape est maintenant au même niveau d'indentation que les 'uses:'
+      # 1. NETTOYAGE : Garantit un build propre
       - name: Flutter Clean 
         run: flutter clean
-      # -------------------------------
           
+      # 2. PRÉPARATION : Configuration de la plateforme Web
       - name: Configure Web Platform
         run: flutter create . --platforms web
         
+      # 3. DÉPENDANCES : Télécharge les packages (y compris flutter_localizations)
       - name: Flutter Pub Get
         run: flutter pub get 
+        
+      # 4. GÉNÉRATION DE CODE : FORCE la création de app_localizations.dart (C'est la clé 🔑)
+      - name: Generate Localizations
+        run: flutter gen-l10n
 
+      # 5. BUILD : Peut maintenant compiler, car le fichier manquant a été créé
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
+      # Correction pour le chemin de base (base href)
       - name: Fix Base Href in index.html
         run: |
           sed -i 's|</head>|<base href="/Taches-a-faire/">\n&|' build/web/index.html

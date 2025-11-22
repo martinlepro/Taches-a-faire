@@ -27,7 +27,7 @@ jobs:
 
       # 4. Compiler le projet pour le web
       # Important : l'option --base-href est CRUCIALE pour GitHub Pages
-      - run: flutter build web --release --base-href /<NOM-DE-VOTRE-REPO>/
+      - run: flutter build web --release --base-href /https://github.com/martinlepro/Taches-a-faire/
 
       # 5. Déployer les fichiers compilés (build/web) sur GitHub Pages
       - uses: peaceiris/actions-gh-pages@v3

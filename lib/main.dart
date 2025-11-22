@@ -1,17 +1,29 @@
-import 'package:flutter/material.dart';
+// lib/main.dart
 
-// 1. Importer les NOUVEAUX fichiers d'écran
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Nécessite l'import
 import 'screens/tasks_screen.dart'; 
 import 'screens/shop_screen.dart';
-// Note: Assurez-vous d'avoir créé un dossier 'screens' dans 'lib'
-
-// 2. Importer les modèles de données
 import 'models/task.dart'; 
 import 'models/profile.dart'; 
 
+// 1. Importer le nouvel AppState
+import 'state/app_state.dart'; 
+
+
 void main() {
-  runApp(const GamifiedTodoApp());
+  // Le point d'entrée crée et fournit l'état AppState à tous les widgets enfants
+  runApp(
+    ChangeNotifierProvider(
+      // 2. Créer l'instance de la classe d'état
+      create: (context) => AppState(), 
+      child: const GamifiedTodoApp(),
+    ),
+  );
 }
+
+// ... (Le reste du fichier MainScreen, etc. reste inchangé)
+// Assurez-vous d'avoir bien importé TasksScreen et ShopScreen dans MainScreen si ce n'est pas déjà fait.
 
 
 class GamifiedTodoApp extends StatelessWidget {

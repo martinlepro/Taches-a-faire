@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (CORRECTION DÉFINITIVE AVEC INITIALISATION WEB)
+# .github/workflows/main.yml (CORRECTION DE L'INDENTATION)
 
 name: Flutter Web CI/CD
 
@@ -18,16 +18,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          # NOUVEAU: Étape de nettoyage pour garantir un build propre 
-          - name: Flutter Clean 
-            run: flutter clean
           
-      # ----------------------------------------------------
-      # ÉTAPE NÉCESSAIRE : Configuration de la plateforme Web
-      # ----------------------------------------------------
+      # --- CORRECTION APPLIQUÉE ICI ---
+      # Cette étape est maintenant au même niveau d'indentation que les 'uses:'
+      - name: Flutter Clean 
+        run: flutter clean
+      # -------------------------------
+          
       - name: Configure Web Platform
         run: flutter create . --platforms web
         
@@ -37,7 +38,6 @@ jobs:
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
-      # Correction pour le chemin de base (base href)
       - name: Fix Base Href in index.html
         run: |
           sed -i 's|</head>|<base href="/Taches-a-faire/">\n&|' build/web/index.html
@@ -46,7 +46,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'build/web'
-          name: github-pages # Nom CRUCIAL
+          name: github-pages
           
   deploy:
     environment:

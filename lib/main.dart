@@ -36,15 +36,15 @@ class GamifiedTodoApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        // AJOUTEZ ICI TOUTES LES LANGUES QUE VOUS AVEZ DÉFINIES DANS lib/l10n/
         Locale('en'), // Anglais
         Locale('fr'), // Français
-        Locale('de'), // Allemand (Exemple)
-        Locale('es'), // Espagnol (Exemple)
-        Locale('it'), // Italien (Exemple)
-        // ... ajoutez les 5 autres locales ici (ex: 'pt', 'nl', 'sv', 'pl', 'ru')
+        Locale('de'), // Allemand
+        Locale('es'), // Espagnol
+        Locale('it'), // Italien
+        Locale('nl'), // Néerlandais
+        Locale('pt'), // Portugais
+        // Ajoutez d'autres si nécessaire (ex: Locale('ru'), Locale('pl'), Locale('sv'))
       ],
-      // ------------------------------------
       
       title: 'Ma To-Do List Gamifiée', // Peut être remplacé par un appel i18n si vous le souhaitez
       theme: ThemeData(

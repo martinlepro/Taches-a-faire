@@ -29,7 +29,7 @@ class GamifiedTodoApp extends StatelessWidget {
     // 1. AJOUTER LA CONFIGURATION DES LOCALISATIONS
     return MaterialApp(
       // --- INTERNATIONALISATION (i18n) ---
-      localizationsDelegates: const [
+      localizationsDelegates: [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

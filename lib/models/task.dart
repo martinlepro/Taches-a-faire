@@ -1,4 +1,5 @@
 // lib/models/task.dart
+import 'dart:convert'; // Nécessaire pour la conversion JSON
 
 class Task {
   final String id;
@@ -9,7 +10,7 @@ class Task {
   final bool isRecurring;
   final String? recurrenceType;
   final int recurrenceValue;
-  final String? dueTime; // Format "HH:mm"
+  final String? dueTime;
 
   Task({
     required this.id,
@@ -23,7 +24,7 @@ class Task {
     this.dueTime,
   });
 
-  // Méthode pour créer une copie modifiée (similaire à la mise à jour en JS)
+  // Méthode pour copier et modifier un objet immuable (très fréquent en Dart/Flutter)
   Task copyWith({
     String? id,
     String? text,
@@ -48,8 +49,6 @@ class Task {
     );
   }
 
-  // --- Sérialisation JSON (pour LocalStorage/Firebase) ---
-
   // Créer un objet Task à partir d'une map (JSON)
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
@@ -58,9 +57,9 @@ class Task {
       completed: json['completed'] as bool,
       difficulty: json['difficulty'] as String,
       points: json['points'] as int,
-      isRecurring: json['isRecurring'] as bool,
+      isRecurring: json['isRecurring'] as bool? ?? false,
       recurrenceType: json['recurrenceType'] as String?,
-      recurrenceValue: json['recurrenceValue'] as int,
+      recurrenceValue: json['recurrenceValue'] as int? ?? 1,
       dueTime: json['dueTime'] as String?,
     );
   }

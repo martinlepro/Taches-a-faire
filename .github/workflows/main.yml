@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (CORRECTION POUR LA RACINE)
+# .github/workflows/main.yml (VERSION FINALE AVEC ARTEFACT)
 
 name: Flutter Web CI/CD
 
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # 1. Obtenir le code source (à la racine)
+      # 1. Obtenir le code source
       - uses: actions/checkout@v4
       
       # 2. Configurer l'environnement Flutter
@@ -26,16 +26,21 @@ jobs:
         run: flutter pub get
 
       # 4. Compiler le projet pour le web
-      # Nous ajoutons une commande 'mkdir' pour s'assurer que le dossier build/web existe et est accessible
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
-      # 5. Déployer les fichiers compilés (build/web) sur GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main'
+      # ----------------------------------------------------
+      # 5. NOUVELLE ÉTAPE CRUCIALE : Publier les fichiers compilés comme un "Artefact"
+      # Ceci permet au job de déploiement de récupérer le dossier 'build/web'
+      # ----------------------------------------------------
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Chemin absolu du répertoire de publication, qui devrait fonctionner si le build se passe bien
-          publish_dir: ./build/web
-          publish_branch: gh-pages
+          path: 'build/web' # Le chemin du dossier créé par 'flutter build web'
+          
+      # 6. Déployer l'Artefact sur GitHub Pages
+      # Nous utilisons le nouvel action officiel de GitHub, qui fonctionne mieux.
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # Action de déploiement simplifiée
+        # Notez que le 'publish_dir' n'est plus nécessaire ici car l'artefact est récupéré automatiquement

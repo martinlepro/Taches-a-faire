@@ -31,8 +31,9 @@ class Profile {
   
   // NOUVEAU: Le niveau est une propriété "Getter" (calculée à la volée)
   int get level {
-    // La formule de niveau que nous avions en JS
-    return (totalPoints / 100).sqrt().floor();
+    // --- CORRECTION APPLIQUÉE ICI ---
+    // On utilise la fonction sqrt() qui englobe le calcul.
+    return sqrt(totalPoints / 100).floor();
   }
 
   // --- Sérialisation JSON ---

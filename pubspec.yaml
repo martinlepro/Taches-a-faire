@@ -1,56 +1,35 @@
-# pubspec.yaml
+# pubspec.yaml (VERSION CORRIGÉE ET COMPLÈTE)
 name: taches_a_faire_main
 description: Une application de To-Do List gamifiée construite en Flutter.
-# Le numéro de version est important pour le déploiement sur Median/Google Play/App Store.
-# Changez la partie '1' (version code) lors d'un nouveau déploiement.
 version: 1.0.0+1 
 
 environment:
-  sdk: '>=3.0.0 <4.0.0' # Assurez-vous d'avoir une version récente de Flutter
+  sdk: '>=3.0.0 <4.0.0'
 
-# Les dépendances (packages) que votre application utilise
 dependencies:
   flutter:
     sdk: flutter
   
-  # ------------------------------------------------
   # --- DÉPENDANCES POUR L'INTERNATIONALISATION (i18n) ---
-  flutter_localizations: # NÉCESSAIRE pour les traductions
-    sdk: flutter         # NÉCESSAIRE pour les traductions
+  flutter_localizations: 
+    sdk: flutter         
   # ------------------------------------------------
-
-  # --- Dépendances Cruciales pour votre App ---
   
-  # 1. Gestion de l'état (ChangeNotifier)
   provider: ^6.0.5 
-  
-  # 2. Génération des identifiants uniques (utilisé dans lib/state/app_state.dart)
   uuid: ^4.4.0
-  
-  # ---------------------------------------------
-
-  # La police d'icônes iOS standard
   cupertino_icons: ^1.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  
-  # Outils de linting pour vous aider à écrire du code propre
   flutter_lints: ^3.0.0
 
-# La section flutter sert à déclarer les ressources (assets) comme les images et les polices
 flutter:
   uses-material-design: true
   
-  # --------------------------------------------------
   # --- CONFIGURATION POUR L'INTERNATIONALISATION ---
-  generate: true # TRÈS IMPORTANT : Active la génération de code pour l'i18n
+  generate: true # TRÈS IMPORTANT : Doit être sous 'flutter:'
   # --------------------------------------------------
 
-  # Si vous ajoutez des images, décommentez la section suivante :
   # assets:
   #   - images/a_dot_burr.jpeg
-  #
-  # Pour de plus amples informations sur la section assets, consultez la documentation
-  # à l'adresse suivante : https://flutter.dev/assets-and-images.

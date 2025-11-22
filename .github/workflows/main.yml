@@ -21,6 +21,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          # NOUVEAU: Étape de nettoyage pour garantir un build propre 
+          - name: Flutter Clean 
+            run: flutter clean
           
       # ----------------------------------------------------
       # ÉTAPE NÉCESSAIRE : Configuration de la plateforme Web

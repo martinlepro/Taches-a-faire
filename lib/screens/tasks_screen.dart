@@ -1,6 +1,9 @@
 // lib/screens/tasks_screen.dart
 import 'package:flutter/material.dart';
-import '../models/task.dart'; // Importe le modèle de donnée Task
+import 'package:provider/provider.dart'; // NÉCESSAIRE
+
+import '../models/task.dart'; 
+import '../state/app_state.dart'; // NÉCESSAIRE
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -10,28 +13,25 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  // Liste de tâches temporaire pour la démo (sera remplacée par l'état global)
-  List<Task> tasks = [
-    Task(
-      id: '1',
-      text: 'Terminer le projet Flutter',
-      completed: false,
-      difficulty: 'hard',
-      points: 5,
-    ),
-    Task(
-      id: '2',
-      text: 'Faire les courses (récurent)',
-      completed: false,
-      difficulty: 'easy',
-      points: 1,
-      isRecurring: true,
-    ),
-  ];
+  // Contrôleur pour l'input d'ajout de tâche
+  final TextEditingController _taskController = TextEditingController(); 
+
+  // Définition par défaut de la difficulté pour l'input
+  String _selectedDifficulty = 'medium'; 
+
+  // NOUVEAU: Supprimer la liste de tâches temporaire (elle est maintenant dans AppState)
+  // List<Task> tasks = [...]; 
+
 
   @override
   Widget build(BuildContext context) {
-    // SingleChildScrollView permet de faire défiler le contenu si l'écran est petit
+    // 1. OBTENIR l'instance de l'état (Appeler Provider.of<AppState>)
+    final appState = Provider.of<AppState>(context);
+    final tasks = appState.tasks; // Lire la liste de tâches depuis l'état central
+
+    // 2. Filtrer les tâches non complétées (similaire à ce que faisait app.js)
+    final todoTasks = tasks.where((t) => !t.completed).toList();
+
     return SingleChildScrollView( 
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -44,69 +44,81 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           const SizedBox(height: 10),
           
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Ajouter une nouvelle tâche...',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              // Bouton 'Ajouter' dans le suffixe pour l'exemple
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.add_task, color: Colors.deepPurple),
-                onPressed: () {
-                  // TODO: Implémenter la logique d'ajout (avec le State Manager)
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _taskController,
+                  decoration: InputDecoration(
+                    hintText: 'Ajouter une nouvelle tâche...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Sélecteur de Difficulté
+              DropdownButton<String>(
+                value: _selectedDifficulty,
+                items: const [
+                  DropdownMenuItem(value: 'easy', child: Text('Facile (+1)')),
+                  DropdownMenuItem(value: 'medium', child: Text('Moyen (+3)')),
+                  DropdownMenuItem(value: 'hard', child: Text('Difficile (+5)')),
+                ],
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedDifficulty = newValue;
+                    });
+                  }
                 },
               ),
-            ),
+              const SizedBox(width: 8),
+              // Bouton Ajouter
+              IconButton(
+                icon: const Icon(Icons.add_task, color: Colors.deepPurple, size: 30),
+                onPressed: () {
+                  if (_taskController.text.isNotEmpty) {
+                      // 3. Appeler la méthode addTask de AppState
+                      appState.addTask(
+                        _taskController.text, 
+                        _selectedDifficulty, 
+                        false // isRecurring: false pour l'instant
+                      ); 
+                      _taskController.clear();
+                  }
+                },
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           
           // 2. Titre et Filtres/Contrôles
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Tâches à faire', 
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-              ),
-              DropdownButton<String>(
-                value: 'default',
-                items: const [
-                  DropdownMenuItem(value: 'default', child: Text('Trier par Défaut')),
-                  DropdownMenuItem(value: 'difficulty', child: Text('Difficulté')),
-                  DropdownMenuItem(value: 'time', child: Text('Urgence')),
-                ],
-                onChanged: (String? newValue) {
-                  // TODO: Implémenter la logique de tri
-                },
-              ),
-            ],
+          const Text(
+            'Tâches à faire (${todoTasks.length})', 
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
           ),
           const SizedBox(height: 10),
 
           // 3. Liste des Tâches (ListView.builder)
           ListView.builder(
-            // Ces deux lignes sont nécessaires si ListView est dans un SingleChildScrollView
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: tasks.length,
+            itemCount: todoTasks.length,
             itemBuilder: (context, index) {
-              final task = tasks[index];
+              final task = todoTasks[index];
               return Card(
-                color: task.completed ? Colors.green[50] : Colors.white,
+                color: Colors.white,
                 margin: const EdgeInsets.symmetric(vertical: 4.0),
                 child: ListTile(
                   leading: Checkbox(
                     value: task.completed,
                     onChanged: (bool? newValue) {
-                      setState(() {
-                        // TODO: Implémenter le basculement d'état
-                      });
+                      // 4. Appeler la méthode completeTask de AppState
+                      appState.completeTask(task.id);
                     },
                   ),
                   title: Text(
                     task.text,
-                    style: TextStyle(
-                      decoration: task.completed ? TextDecoration.lineThrough : TextDecoration.none,
-                    ),
                   ),
                   subtitle: Text(
                     '${task.difficulty.toUpperCase()} | ${task.points} pts ${task.isRecurring ? ' (Répétition)' : ''}',
@@ -114,12 +126,10 @@ class _TasksScreenState extends State<TasksScreen> {
                   trailing: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      // TODO: Implémenter la suppression
+                      // 5. Appeler la méthode deleteTask de AppState
+                      appState.deleteTask(task.id);
                     },
                   ),
-                  onTap: () {
-                    // TODO: Ouvrir un formulaire d'édition
-                  },
                 ),
               );
             },

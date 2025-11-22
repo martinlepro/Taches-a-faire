@@ -1,4 +1,3 @@
-
 // lib/models/profile.dart
 import 'dart:math'; // Pour la fonction sqrt()
 
@@ -15,7 +14,6 @@ class Profile {
     required this.maxStreak,
   });
   
-  // NOUVEAU: Méthode copyWith (Permet de créer une copie modifiée facilement)
   Profile copyWith({
     String? icon,
     int? totalPoints,
@@ -30,7 +28,6 @@ class Profile {
     );
   }
   
-  // NOUVEAU: Le niveau est une propriété "Getter" (calculée à la volée)
   int get level {
     // --- CORRECTION APPLIQUÉE ICI ---
     // On utilise la fonction sqrt() qui englobe le calcul.

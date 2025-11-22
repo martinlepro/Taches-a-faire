@@ -11,7 +11,7 @@
     
     <div class="container">
         <header>
-            <div id="profile-display" onclick="toggleSection('profile-section')">
+            <div id="profile-display" onclick="toggleSection('profile-section-modal')">
                 <span id="profile-icon" style="font-size: 24px;">👤</span>
                 <span id="level-display" class="badge level-badge">Niv. 0</span>
             </div>
@@ -28,15 +28,64 @@
             <p>Record de Série : <span id="max-streak">0</span> 👑</p>
             <p>Total Points : <span id="total-points">0</span> 🌟</p>
         </div>
+        
+        <div id="tasks-screen" class="screen active-screen">
+            <section class="task-input">
+                <input type="text" id="new-task" placeholder="Ajouter une nouvelle tâche..." required>
+                <select id="task-difficulty">
+                    <option value="easy">Facile (+1pt)</option>
+                    <option value="medium" selected>Moyen (+3pts)</option>
+                    <option value="hard">Difficile (+5pts)</option>
+                </select>
 
-        <section id="shop-section" class="section-panel hidden">
+                <div class="task-options">
+                    <label>
+                        <input type="checkbox" id="is-recurring"> Récurent
+                    </label>
+
+                    <div id="recurrence-options" style="display: none;">
+                        Tous les <input type="number" id="recurrence-value" value="1" min="1" style="width: 40px;"> 
+                        <select id="recurrence-type">
+                            <option value="daily">jour(s)</option>
+                            <option value="weekly">semaine(s)</option>
+                            <option value="monthly">mois</option>
+                            <option value="yearly">année(s)</option>
+                        </select>
+                    </div>
+                    
+                    <label>
+                        Heure limite : <input type="time" id="due-time">
+                    </label>
+                </div>
+                <button onclick="addTask()">Ajouter</button>
+            </section>
+
+            <section class="task-list">
+                <h2>Tâches à faire</h2>
+                
+                <div class="tasks-controls">
+                    <button onclick="setTaskFilter('all')" id="filter-all" class="active">Toutes</button>
+                    <button onclick="setTaskFilter('todo')" id="filter-todo">À Faire Seulement</button>
+                    <select onchange="setTaskSort(this.value)">
+                        <option value="default">Trier par Défaut</option>
+                        <option value="difficulty">Difficulté</option>
+                        <option value="time">Urgence</option>
+                    </select>
+                </div>
+
+                <ul id="tasks-list">
+                    </ul>
+            </section>
+        </div>
+
+        <section id="shop-section" class="screen hidden-screen">
             <h2>🛒 Boutique d'Améliorations</h2>
             <p>Dépensez vos points pour des récompenses et des cosmétiques !</p>
             <ul id="shop-items-list">
                 </ul>
         </section>
         
-        <section id="profile-section" class="section-panel hidden">
+        <section id="profile-section" class="screen hidden-screen">
             <h2>✨ Mon Profil</h2>
             <div class="profile-details">
                 <span id="current-profile-icon" style="font-size: 3rem;">👤</span>
@@ -46,6 +95,27 @@
             </div>
             <button onclick="shareProfile()">Partager mon Profil ! 🚀</button>
         </section>
+
+        <section class="history-section screen hidden-screen" id="history-section">
+            <h2>📊 Historique & Statistiques</h2>
+
+            <div class="history-toggle">
+                <button onclick="displayHistory('daily')">Jour</button>
+                <button onclick="displayHistory('weekly')">Semaine</button>
+                <button onclick="displayHistory('monthly')">Mois</button>
+                <button onclick="displayHistory('yearly')">Année</button>
+            </div>
+
+            <h3>Séries de Victoires Passées</h3>
+            <ul id="streak-history-list"></ul>
+
+            <h3>Tâches Archivées</h3>
+            <ul id="archive-list"></ul>
+            
+            <h3>Historique des Points (<span id="history-period-title">Jour</span>)</h3>
+            <ul id="points-history-list"></ul>
+        </section>
+
 
         <div id="settings-menu" class="settings-menu hidden">
             <h2>Réglages de l'Application</h2>
@@ -66,88 +136,34 @@
             <label for="import-file" class="button import-btn">Importer les données ⬆️</label>
             <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="display: none;">
         </div>
-        
-        <div class="main-actions">
-            <button onclick="toggleSection('shop-section')">🛒 Boutique</button>
-            <button onclick="toggleSection('history-section')">📊 Statistiques</button>
-        </div>
-
-        <section class="task-input">
-            <input type="text" id="new-task" placeholder="Ajouter une nouvelle tâche..." required>
-            <select id="task-difficulty">
-                <option value="easy">Facile (+1pt)</option>
-                <option value="medium" selected>Moyen (+3pts)</option>
-                <option value="hard">Difficile (+5pts)</option>
-            </select>
-
-            <div class="task-options">
-                <label>
-                    <input type="checkbox" id="is-recurring"> Récurent
-                </label>
-
-                <div id="recurrence-options" style="display: none;">
-                    Tous les <input type="number" id="recurrence-value" value="1" min="1" style="width: 40px;"> 
-                    <select id="recurrence-type">
-                        <option value="daily">jour(s)</option>
-                        <option value="weekly">semaine(s)</option>
-                        <option value="monthly">mois</option>
-                        <option value="yearly">année(s)</option>
-                    </select>
-                </div>
-                
-                <label>
-                    Heure limite : <input type="time" id="due-time">
-                </label>
-            </div>
-            <button onclick="addTask()">Ajouter</button>
-        </section>
-
-        <section class="task-list">
-            <h2>Tâches à faire</h2>
-            
-            <div class="tasks-controls">
-                <button onclick="setTaskFilter('all')" id="filter-all" class="active">Toutes</button>
-                <button onclick="setTaskFilter('todo')" id="filter-todo">À Faire Seulement</button>
-                <select onchange="setTaskSort(this.value)">
-                    <option value="default">Trier par Défaut</option>
-                    <option value="difficulty">Difficulté</option>
-                    <option value="time">Urgence</option>
-                </select>
-            </div>
-
-            <ul id="tasks-list">
-                </ul>
-        </section>
-
-        <section class="history-section" id="history-section">
-            <h2>Historique & Statistiques</h2>
-
-            <div class="history-toggle">
-                <button onclick="displayHistory('daily')">Jour</button>
-                <button onclick="displayHistory('weekly')">Semaine</button>
-                <button onclick="displayHistory('monthly')">Mois</button>
-                <button onclick="displayHistory('yearly')">Année</button>
-            </div>
-
-            <h3>Séries de Victoires Passées</h3>
-            <ul id="streak-history-list"></ul>
-
-            <h3>Tâches Archivées</h3>
-            <ul id="archive-list"></ul>
-            
-            <h3>Historique des Points (<span id="history-period-title">Jour</span>)</h3>
-            <ul id="points-history-list"></ul>
-        </section>
     </div>
-
+    
+    <nav class="bottom-nav">
+        <button onclick="showScreen('tasks-screen', this)" class="active">
+            <i class="fas fa-list-check"></i> Tâches
+        </button>
+        <button onclick="showScreen('shop-section', this)">
+            <i class="fas fa-store"></i> Boutique
+        </button>
+        <button onclick="showScreen('history-section', this)">
+            <i class="fas fa-chart-line"></i> Stats
+        </button>
+        <button onclick="showScreen('profile-section', this)">
+            <i class="fas fa-user"></i> Profil
+        </button>
+        <button onclick="alert('Fonctionnalité Sociale à venir !')">
+            <i class="fas fa-users"></i> Social
+        </button>
+    </nav>
+    
     <script>
         document.getElementById('is-recurring').addEventListener('change', function() {
+            // Utiliser 'inline-flex' pour un meilleur alignement dans la balise input
             document.getElementById('recurrence-options').style.display = this.checked ? 'inline-flex' : 'none';
         });
     </script>
 
     <script type="module">
-        // Votre configuration Firebase (Vérifiez votre API Key)
         const firebaseConfig = {
             apiKey: "AIzaSyAxwNs55WQQCTv0ShN_g4jb1_5PegPjgso",
             authDomain: "dino-meilleur-score-classement.firebaseapp.com",
@@ -159,14 +175,12 @@
             measurementId: "G-HTR6QG5493"
         };
 
-        // Importer les modules de l'Application et de la Realtime Database
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Rendre les fonctions RTDB accessibles globalement
         window.db = db;
         window.ref = ref;
         window.set = set;

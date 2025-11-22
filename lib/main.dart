@@ -1,12 +1,11 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-// Note: Le package 'dart:math' n'est plus nécessaire ici car nous avons enlevé le calcul du niveau pour la démo.
-// Importez vos futurs modèles ici:
-// import 'models/task.dart';
-// import 'models/profile.dart'; 
+
+// Importez vos modèles maintenant qu'ils existent dans lib/models/
+import 'models/task.dart'; 
+import 'models/profile.dart'; 
 
 void main() {
-  // Lancer l'application, l'état sera géré par un Provider ou BLoC dans une application réelle.
   runApp(const GamifiedTodoApp());
 }
 
@@ -17,7 +16,7 @@ class GamifiedTodoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Ma To-Do List Gamifiée',
-      // Définition d'un thème clair pour l'application
+      // Définition du thème de l'application
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         primaryColor: Colors.deepPurple,
@@ -27,7 +26,8 @@ class GamifiedTodoApp extends StatelessWidget {
           centerTitle: true,
         ),
         useMaterial3: true,
-        scaffoldBackgroundColor: Colors.grey[50],
+        // Un fond léger pour le Scaffold
+        scaffoldBackgroundColor: Colors.grey[50], 
       ),
       home: const MainScreen(),
     );
@@ -48,7 +48,6 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   // Liste des écrans à afficher pour chaque onglet.
-  // Ces classes de Widgets sont à créer par la suite (e.g., TasksScreen(), ShopScreen(), etc.)
   static const List<Widget> _screens = <Widget>[
     // Onglet Tâches
     Center(child: Text('1. Écran des Tâches (TODO List)', style: TextStyle(fontSize: 20))), 
@@ -77,7 +76,6 @@ class _MainScreenState extends State<MainScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // Dans Flutter, cela ouvrirait une Modal ou un Drawer
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Ouverture des Réglages...'))
               );
@@ -89,36 +87,62 @@ class _MainScreenState extends State<MainScreen> {
       // Contenu de l'écran actuellement sélectionné
       body: _screens.elementAt(_selectedIndex),
       
-      // Barre de navigation par onglets (Bottom Navigation Bar)
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
-            label: 'Tâches',
+      // NOUVEAU : BottomAppBar pour le style arrondi et l'ombre
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.transparent, // Rendre le fond du BottomAppBar transparent
+        elevation: 0, // Enlever l'ombre par défaut
+        child: Container(
+          height: 60, // Hauteur de la barre
+          margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0), // Marge pour l'effet "flottant"
+          decoration: BoxDecoration(
+            color: Colors.white, // Fond blanc
+            borderRadius: BorderRadius.circular(25.0), // Bord arrondi
+            boxShadow: [
+              // Légère ombre pour mettre en valeur le rectangle
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                spreadRadius: 2,
+                blurRadius: 15,
+                offset: const Offset(0, 5), 
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.store),
-            label: 'Boutique',
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.list_alt, size: 28),
+                label: 'Tâches',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.store, size: 28),
+                label: 'Boutique',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.show_chart, size: 28),
+                label: 'Stats',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person, size: 28),
+                label: 'Profil',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.group, size: 28),
+                label: 'Social',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            // Couleurs
+            selectedItemColor: Theme.of(context).primaryColor,
+            unselectedItemColor: Colors.grey,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed, // Important pour 5 éléments
+            
+            // Propriétés pour un look épuré dans le conteneur :
+            backgroundColor: Colors.transparent, 
+            elevation: 0, 
+            showUnselectedLabels: true,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.show_chart),
-            label: 'Stats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Social',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        // Couleurs
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // Nécessaire pour 5+ éléments
+        ),
       ),
     );
   }

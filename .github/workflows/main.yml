@@ -24,19 +24,17 @@ jobs:
           
       # ----------------------------------------------------
       # ÉTAPE NÉCESSAIRE : Configuration de la plateforme Web
-      # Ceci résout l'erreur 'This project is not configured for the web.'
       # ----------------------------------------------------
       - name: Configure Web Platform
         run: flutter create . --platforms web
         
       - name: Flutter Pub Get
-        # Nécessaire après "flutter create" et pour les dépendances
         run: flutter pub get 
 
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
-      # Étape conservée pour corriger l'erreur de chargement 404/Assets vue précédemment
+      # Correction pour le chemin de base (base href)
       - name: Fix Base Href in index.html
         run: |
           sed -i 's|</head>|<base href="/Taches-a-faire/">\n&|' build/web/index.html
@@ -45,7 +43,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'build/web'
-          name: github-pages # Nom CRUCIAL pour le déploiement Pages
+          name: github-pages # Nom CRUCIAL
           
   deploy:
     environment:

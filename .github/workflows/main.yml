@@ -1,39 +1,44 @@
 # .github/workflows/main.yml
+
 name: Flutter Web CI/CD
 
-# Déclenche l'action quand vous poussez sur la branche principale (main)
 on:
   push:
     branches:
       - main
-  # Permet de lancer le workflow manuellement
-  workflow_dispatch:
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       # 1. Obtenir le code source
       - uses: actions/checkout@v4
-      
+
       # 2. Configurer l'environnement Flutter
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           
-      # 3. Installer les dépendances (votre pubspec.yaml)
-      - run: flutter pub get
+      # 3. Installation des dépendances
+      - name: Flutter Pub Get
+        run: flutter pub get
+        working-directory: Taches-a-faire-main # <-- CORRECTION 1
 
-      # 4. Compiler le projet pour le web (CORRIGÉ)
-      # L'option --base-href est CRUCIALE et doit correspondre au nom de votre dépôt
-      - run: flutter build web --release --base-href /Taches-a-faire/
+      # 4. Compiler le projet pour le web
+      - name: Build Web
+        run: flutter build web --release --base-href /Taches-a-faire/
+        working-directory: Taches-a-faire-main # <-- CORRECTION 2
 
-      # 5. Déployer les fichiers compilés (build/web) sur GitHub Pages
-      - uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main'
+      # 5. Déploiement sur GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
-          # La branche où les fichiers compilés seront stockés
-          publish_branch: gh-pages
+          publish_dir: ./Taches-a-faire-main/build/web # <-- CORRECTION 3 (Cible le dossier de sortie dans le sous-dossier)
+          cname: your-custom-domain.com # Supprimez ou laissez cette ligne si vous n'avez pas de nom de domaine personnalisé

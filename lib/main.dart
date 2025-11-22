@@ -1,13 +1,18 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 
-// Importez vos modèles maintenant qu'ils existent dans lib/models/
+// 1. Importer les NOUVEAUX fichiers d'écran
+import 'screens/tasks_screen.dart'; 
+import 'screens/shop_screen.dart';
+// Note: Assurez-vous d'avoir créé un dossier 'screens' dans 'lib'
+
+// 2. Importer les modèles de données
 import 'models/task.dart'; 
 import 'models/profile.dart'; 
 
 void main() {
   runApp(const GamifiedTodoApp());
 }
+
 
 class GamifiedTodoApp extends StatelessWidget {
   const GamifiedTodoApp({super.key});

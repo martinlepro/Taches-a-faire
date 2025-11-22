@@ -14,6 +14,21 @@ class Profile {
     required this.maxStreak,
   });
   
+  // NOUVEAU: Méthode copyWith (Permet de créer une copie modifiée facilement)
+  Profile copyWith({
+    String? icon,
+    int? totalPoints,
+    int? currentStreak,
+    int? maxStreak,
+  }) {
+    return Profile(
+      icon: icon ?? this.icon,
+      totalPoints: totalPoints ?? this.totalPoints,
+      currentStreak: currentStreak ?? this.currentStreak,
+      maxStreak: maxStreak ?? this.maxStreak,
+    );
+  }
+  
   // NOUVEAU: Le niveau est une propriété "Getter" (calculée à la volée)
   int get level {
     // La formule de niveau que nous avions en JS

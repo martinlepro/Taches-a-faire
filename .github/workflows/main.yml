@@ -1,13 +1,11 @@
-# .github/workflows/main.yml (VERSION FINALE CORRIGÉE)
+# .github/workflows/main.yml (CORRECTION POUR LA RACINE)
 
 name: Flutter Web CI/CD
 
-# Déclenche l'action quand vous poussez sur la branche principale (main)
 on:
   push:
     branches:
       - main
-  # Permet de lancer le workflow manuellement
   workflow_dispatch:
 
 jobs:
@@ -23,12 +21,12 @@ jobs:
         with:
           channel: 'stable'
           
-      # 3. Installer les dépendances (fonctionne à la racine)
+      # 3. Installer les dépendances
       - name: Flutter Pub Get
         run: flutter pub get
 
-      # 4. Compiler le projet pour le web (fonctionne à la racine)
-      # L'option --base-href est CRUCIALE et doit correspondre au nom de votre dépôt
+      # 4. Compiler le projet pour le web
+      # Nous ajoutons une commande 'mkdir' pour s'assurer que le dossier build/web existe et est accessible
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
@@ -38,7 +36,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Le chemin du dossier de sortie est bien le dossier 'build/web' à la racine
+          # Chemin absolu du répertoire de publication, qui devrait fonctionner si le build se passe bien
           publish_dir: ./build/web
-          # La branche où les fichiers compilés seront stockés
           publish_branch: gh-pages

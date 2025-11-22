@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (VERSION FINALE AVEC ARTEFACT)
+# .github/workflows/main.yml (VERSION FINALE ET DÉFINITIVE)
 
 name: Flutter Web CI/CD
 
@@ -8,39 +8,47 @@ on:
       - main
   workflow_dispatch:
 
+# ----------------------------------------------------
+# 1. PERMISSIONS CRUCIALES POUR LE DÉPLOIEMENT PAGES
+# Le jeton d'accès (GITHUB_TOKEN) doit avoir le droit d'écrire sur les "pages" et "contents"
+# ----------------------------------------------------
+permissions:
+  contents: read
+  pages: write # Autorise la création de GitHub Pages
+  id-token: write # Nécessaire pour les actions de déploiement Pages
+
 jobs:
-  build_and_deploy:
+  build: # Renommons le job en 'build'
     runs-on: ubuntu-latest
-    
     steps:
-      # 1. Obtenir le code source
       - uses: actions/checkout@v4
-      
-      # 2. Configurer l'environnement Flutter
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           
-      # 3. Installer les dépendances
       - name: Flutter Pub Get
         run: flutter pub get
 
-      # 4. Compiler le projet pour le web
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
       # ----------------------------------------------------
-      # 5. NOUVELLE ÉTAPE CRUCIALE : Publier les fichiers compilés comme un "Artefact"
-      # Ceci permet au job de déploiement de récupérer le dossier 'build/web'
+      # 5. Publier les fichiers compilés comme Artefact (Doit avoir le nom 'github-pages')
       # ----------------------------------------------------
-      - name: Upload Artifact
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'build/web' # Le chemin du dossier créé par 'flutter build web'
-          
-      # 6. Déployer l'Artefact sur GitHub Pages
-      # Nous utilisons le nouvel action officiel de GitHub, qui fonctionne mieux.
+          path: 'build/web'
+
+  deploy: # Créons un job de déploiement séparé (MEILLEURE PRATIQUE)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build # Ce job dépend du succès du job 'build'
+    
+    steps:
+      # 6. Déployer l'Artefact sur GitHub Pages (utilise l'artefact créé par le job 'build')
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 # Action de déploiement simplifiée
-        # Notez que le 'publish_dir' n'est plus nécessaire ici car l'artefact est récupéré automatiquement
+        uses: actions/deploy-pages@v4

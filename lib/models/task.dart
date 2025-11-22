@@ -1,81 +1,143 @@
-// lib/models/task.dart
-import 'dart:convert'; // Nécessaire pour la conversion JSON
+// lib/screens/tasks_screen.dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // NÉCESSAIRE
 
-class Task {
-  final String id;
-  final String text;
-  final bool completed;
-  final String difficulty;
-  final int points;
-  final bool isRecurring;
-  final String? recurrenceType;
-  final int recurrenceValue;
-  final String? dueTime;
+import '../models/task.dart'; 
+import '../state/app_state.dart'; // NÉCESSAIRE
 
-  Task({
-    required this.id,
-    required this.text,
-    required this.completed,
-    required this.difficulty,
-    required this.points,
-    this.isRecurring = false,
-    this.recurrenceType,
-    this.recurrenceValue = 1,
-    this.dueTime,
-  });
+class TasksScreen extends StatefulWidget {
+  const TasksScreen({super.key});
 
-  // Méthode pour copier et modifier un objet immuable (très fréquent en Dart/Flutter)
-  Task copyWith({
-    String? id,
-    String? text,
-    bool? completed,
-    String? difficulty,
-    int? points,
-    bool? isRecurring,
-    String? recurrenceType,
-    int? recurrenceValue,
-    String? dueTime,
-  }) {
-    return Task(
-      id: id ?? this.id,
-      text: text ?? this.text,
-      completed: completed ?? this.completed,
-      difficulty: difficulty ?? this.difficulty,
-      points: points ?? this.points,
-      isRecurring: isRecurring ?? this.isRecurring,
-      recurrenceType: recurrenceType ?? this.recurrenceType,
-      recurrenceValue: recurrenceValue ?? this.recurrenceValue,
-      dueTime: dueTime ?? this.dueTime,
+  @override
+  State<TasksScreen> createState() => _TasksScreenState();
+}
+
+class _TasksScreenState extends State<TasksScreen> {
+  // Contrôleur pour l'input d'ajout de tâche
+  final TextEditingController _taskController = TextEditingController(); 
+
+  // Définition par défaut de la difficulté pour l'input
+  String _selectedDifficulty = 'medium'; 
+
+  // NOUVEAU: Supprimer la liste de tâches temporaire (elle est maintenant dans AppState)
+  // List<Task> tasks = [...]; 
+
+
+  @override
+  Widget build(BuildContext context) {
+    // 1. OBTENIR l'instance de l'état (Appeler Provider.of<AppState>)
+    final appState = Provider.of<AppState>(context);
+    final tasks = appState.tasks; // Lire la liste de tâches depuis l'état central
+
+    // 2. Filtrer les tâches non complétées (similaire à ce que faisait app.js)
+    final todoTasks = tasks.where((t) => !t.completed).toList();
+
+    return SingleChildScrollView( 
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Zone d'ajout de tâche (Input)
+          const Text(
+            'Ajouter une nouvelle tâche',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _taskController,
+                  decoration: InputDecoration(
+                    hintText: 'Ajouter une nouvelle tâche...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Sélecteur de Difficulté
+              DropdownButton<String>(
+                value: _selectedDifficulty,
+                items: const [
+                  DropdownMenuItem(value: 'easy', child: Text('Facile (+1)')),
+                  DropdownMenuItem(value: 'medium', child: Text('Moyen (+3)')),
+                  DropdownMenuItem(value: 'hard', child: Text('Difficile (+5)')),
+                ],
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedDifficulty = newValue;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(width: 8),
+              // Bouton Ajouter
+              IconButton(
+                icon: const Icon(Icons.add_task, color: Colors.deepPurple, size: 30),
+                onPressed: () {
+                  if (_taskController.text.isNotEmpty) {
+                      // 3. Appeler la méthode addTask de AppState
+                      appState.addTask(
+                        _taskController.text, 
+                        _selectedDifficulty, 
+                        false // isRecurring: false pour l'instant
+                      ); 
+                      _taskController.clear();
+                  }
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // 2. Titre et Filtres/Contrôles
+          // --- CORRECTION APPLIQUÉE ICI ---
+          // Le mot-clé 'const' a été retiré car todoTasks.length est une variable.
+          Text(
+            'Tâches à faire (${todoTasks.length})', 
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+          ),
+          const SizedBox(height: 10),
+
+          // 3. Liste des Tâches (ListView.builder)
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: todoTasks.length,
+            itemBuilder: (context, index) {
+              final task = todoTasks[index];
+              return Card(
+                color: Colors.white,
+                margin: const EdgeInsets.symmetric(vertical: 4.0),
+                child: ListTile(
+                  leading: Checkbox(
+                    value: task.completed,
+                    onChanged: (bool? newValue) {
+                      // 4. Appeler la méthode completeTask de AppState
+                      appState.completeTask(task.id);
+                    },
+                  ),
+                  title: Text(
+                    task.text,
+                  ),
+                  subtitle: Text(
+                    '${task.difficulty.toUpperCase()} | ${task.points} pts ${task.isRecurring ? ' (Répétition)' : ''}',
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      // 5. Appeler la méthode deleteTask de AppState
+                      appState.deleteTask(task.id);
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
-  }
-
-  // Créer un objet Task à partir d'une map (JSON)
-  factory Task.fromJson(Map<String, dynamic> json) {
-    return Task(
-      id: json['id'] as String,
-      text: json['text'] as String,
-      completed: json['completed'] as bool,
-      difficulty: json['difficulty'] as String,
-      points: json['points'] as int,
-      isRecurring: json['isRecurring'] as bool? ?? false,
-      recurrenceType: json['recurrenceType'] as String?,
-      recurrenceValue: json['recurrenceValue'] as int? ?? 1,
-      dueTime: json['dueTime'] as String?,
-    );
-  }
-
-  // Convertir l'objet Task en map (JSON)
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'text': text,
-      'completed': completed,
-      'difficulty': difficulty,
-      'points': points,
-      'isRecurring': isRecurring,
-      'recurrenceType': recurrenceType,
-      'recurrenceValue': recurrenceValue,
-      'dueTime': dueTime,
-    };
   }
 }

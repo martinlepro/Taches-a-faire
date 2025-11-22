@@ -10,16 +10,13 @@ const STORAGE_KEYS = {
     POINTS_HISTORY: 'todoApp.pointsHistory',
     LAST_CHECK: 'todoApp.lastCheckDate',
     SETTINGS: 'todoApp.settings',
-    // NOUVELLES CLÉS
     SHOP_ITEMS: 'todoApp.shopItems',
     PROFILE: 'todoApp.profile'
 };
 
 const POINTS_CONFIG = { easy: 1, medium: 3, hard: 5, newStreakRecord: 10 };
 const RESET_HOUR = 0; 
-const NOTIFICATION_HOUR = 10; 
 
-// Identifiant de l'utilisateur pour Firebase (Mock ID car pas d'authentification)
 const USER_ID = "mock_user_123"; 
 
 const BASE_PATH = `todo_tasks/${USER_ID}`; 
@@ -42,16 +39,13 @@ let appSettings = {
     notificationLeadTimeMinutes: 30 
 };
 
-// NOUVEAU: État de la boutique et du profil
 let shopItems = [];
 let profile = {
-    icon: '👤', // Icône de profil par défaut
-    // Le niveau est calculé dynamiquement
+    icon: '👤', 
 };
 
-// NOUVEAU: État des filtres et du tri
-let currentSort = 'default'; // 'difficulty', 'time'
-let currentFilter = 'all'; // 'all', 'todo'
+let currentSort = 'default'; 
+let currentFilter = 'all'; 
 
 
 // --- 2. Fonctions de Stockage (Local / Firebase) ---
@@ -59,10 +53,9 @@ let currentFilter = 'all'; // 'all', 'todo'
 /** Initialise la boutique avec les articles par défaut. */
 function initializeShop() {
     const defaultItems = [
-        { id: 1, name: "Icône 'Rocket'", cost: 100, type: 'icon', value: '🚀', owned: false },
-        { id: 2, name: "Icône 'Star'", cost: 250, type: 'icon', value: '⭐', owned: false },
-        { id: 3, name: "Icône 'Ninja'", cost: 500, type: 'icon', value: '🥷', owned: false },
-        // Ajout d'une récompense non cosmétique (exemple)
+        { id: 1, name: "Icône 'Rocket'", cost: 100, type: 'icon', value: '🚀', owned: false, description: "Pour atteindre les sommets." },
+        { id: 2, name: "Icône 'Star'", cost: 250, type: 'icon', value: '⭐', owned: false, description: "Brillez de mille feux." },
+        { id: 3, name: "Icône 'Ninja'", cost: 500, type: 'icon', value: '🥷', owned: false, description: "Maître de la furtivité." },
         { id: 4, name: "Reset de Série", cost: 1000, type: 'utility', value: 'reset_streak', owned: false, description: "Réinitialise votre série sans pénalité." }
     ];
     shopItems = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHOP_ITEMS) || JSON.stringify(defaultItems));
@@ -71,7 +64,7 @@ function initializeShop() {
 /** Charge toutes les données depuis localStorage ou Firebase. */
 function loadData() {
     loadLocalData(); 
-    initializeShop(); // Charger la boutique
+    initializeShop();
     
     if (appSettings.socialShareEnabled) {
         setupFirebaseListener();
@@ -91,7 +84,6 @@ function loadLocalData() {
     };
     lastCheckDate = localStorage.getItem(STORAGE_KEYS.LAST_CHECK);
     
-    // NOUVEAU: Chargement du profil
     const loadedProfile = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROFILE) || '{}');
     profile = { ...profile, ...loadedProfile };
 }
@@ -119,18 +111,67 @@ function saveLocalData() {
     localStorage.setItem(STORAGE_KEYS.POINTS_HISTORY, JSON.stringify(pointsHistory));
     localStorage.setItem(STORAGE_KEYS.LAST_CHECK, lastCheckDate);
     
-    // NOUVEAU: Sauvegarde de la boutique et du profil
     localStorage.setItem(STORAGE_KEYS.SHOP_ITEMS, JSON.stringify(shopItems));
     localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
 }
 
-// ... (Les fonctions Firebase restent inchangées dans la logique) ...
-
 /** Initialise l'écouteur pour Firebase RTDB. */
 function setupFirebaseListener() {
-    // ... (Logique Firebase inchangée, elle synchroniserait seulement les données de base) ...
-    // Note: La boutique et le profil devraient rester locaux ou utiliser un chemin Firebase dédié.
-    // Pour cet exemple, on suppose qu'ils restent en localStorage même si Firebase est actif.
+    if (!window.db) {
+        console.error("Erreur: Firebase RTDB non initialisée.");
+        return;
+    }
+    const userRef = window.ref(window.db, BASE_PATH);
+    window.onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            tasks = data.tasks ? Object.keys(data.tasks).map(key => ({ ...data.tasks[key], id: key })) : [];
+            currentStreak = data.stats ? data.stats.currentStreak || 0 : 0;
+            maxStreak = data.stats ? data.stats.maxStreak || 0 : 0;
+            totalPoints = data.stats ? data.stats.totalPoints || 0 : 0;
+            archive = data.archive ? Object.values(data.archive) : [];
+            streakHistory = data.streakHistory ? Object.values(data.streakHistory) : [];
+            pointsHistory = data.pointsHistory ? Object.values(data.pointsHistory) : [];
+        } else {
+            syncLocalToFirebase();
+        }
+        updateUI(); 
+    }, (error) => {
+        console.error("Erreur de connexion Firebase :", error);
+        appSettings.socialShareEnabled = false;
+        loadTasksFromLocal();
+        updateUI();
+    });
+}
+
+/** Pousse l'ensemble des données locales vers Firebase. */
+async function syncLocalToFirebase() {
+    const userRef = window.ref(window.db, BASE_PATH);
+    const tasksData = tasks.reduce((acc, task) => {
+        acc[task.id] = { 
+            text: task.text, completed: task.completed, difficulty: task.difficulty, 
+            points: task.points, createdAt: task.createdAt, 
+            isRecurring: task.isRecurring || false, 
+            recurrenceType: task.recurrenceType || null, 
+            recurrenceValue: task.recurrenceValue || 1,
+            dueTime: task.dueTime || null
+        };
+        return acc;
+    }, {});
+    
+    const dataToSync = {
+        tasks: tasksData,
+        stats: { currentStreak, maxStreak, totalPoints },
+        archive: archive,
+        streakHistory: streakHistory,
+        pointsHistory: pointsHistory
+    };
+
+    try {
+        await window.set(userRef, dataToSync);
+    } catch (e) {
+        console.error("Erreur de synchronisation :", e);
+    }
 }
 
 /** Sauvegarde un état (stats ou historique) sur Firebase. */
@@ -146,23 +187,217 @@ async function saveFirebaseState(path, data) {
 }
 
 
-// --- 3. Logique de Gamification et Tâches ---
+// --- 3. Logique de l'Application (Tâches, Série, Points) ---
 
-// NOUVELLE FONCTION: Calcule le niveau de l'utilisateur
+/** Calcule le niveau de l'utilisateur. */
 function calculateLevel() {
-    // Progression simple : Niveau = plancher(racine_carrée(Points / 100))
-    // Ex: 0-99pts = Niv 0, 100-399pts = Niv 1, 400-899pts = Niv 2, etc.
     return Math.floor(Math.sqrt(totalPoints / 100));
 }
 
-// ... (checkRecurrenceAndDailyReset reste inchangée) ...
+/** Vérifie la récurrence et gère la réinitialisation quotidienne. */
+function checkRecurrenceAndDailyReset() {
+    const now = new Date();
+    const todayStr = now.toLocaleDateString('fr-FR');
+    const lastCheckTime = lastCheckDate ? new Date(lastCheckDate.split('/').reverse().join('-')) : null;
 
-// ... (addTask, toggleTaskCompletion, archiveTask, restoreTask restent inchangées) ...
+    const isNewDay = !lastCheckTime || (now.setHours(RESET_HOUR, 0, 0, 0) > lastCheckTime.setHours(RESET_HOUR, 0, 0, 0));
+    
+    if (isNewDay) {
+        
+        // --- 1. Vérification et mise à jour de la Série ---
+        const allCompleted = tasks.every(task => task.completed || !task.isRecurring); 
+        const tasksToCompleteCount = tasks.filter(task => !task.completed).length;
+
+        if (tasks.filter(t => !t.completed).length > 0 && !allCompleted) {
+            if (currentStreak > 0) {
+                streakHistory.push({ date: lastCheckDate, streak: currentStreak });
+                alert(`Dommage ! Votre série de ${currentStreak} jour(s) est brisée. ${tasksToCompleteCount} tâches non finies !`);
+            }
+            currentStreak = 0; 
+        } else if (tasks.length > 0 && allCompleted) {
+            currentStreak++;
+        }
+
+        // --- 2. Mise à jour du Record de Série (Max Streak) ---
+        if (currentStreak > maxStreak) {
+            maxStreak = currentStreak; 
+            totalPoints += POINTS_CONFIG.newStreakRecord;
+            pointsHistory.push({ 
+                date: todayStr, 
+                points: POINTS_CONFIG.newStreakRecord, 
+                reason: `Nouveau record de série : ${currentStreak} jours` 
+            });
+            alert(`Félicitations ! Nouveau record de série : ${currentStreak} jours ! Vous gagnez ${POINTS_CONFIG.newStreakRecord} points !`);
+        }
+        
+        // --- 3. Réinitialisation des tâches récurrentes ---
+        tasks = tasks.map(task => {
+            if (task.isRecurring && task.completed) {
+                return { ...task, completed: false };
+            }
+            return task;
+        });
+
+        lastCheckDate = todayStr;
+        
+        if (appSettings.socialShareEnabled) {
+             saveFirebaseState('stats', { currentStreak, maxStreak, totalPoints });
+             saveFirebaseState('streakHistory', streakHistory);
+             syncLocalToFirebase(); 
+        } else {
+             saveLocalData();
+        }
+    }
+    
+    tasks.filter(t => t.dueTime && !t.completed).forEach(scheduleTaskNotification);
+}
+
+/** Ajoute une nouvelle tâche. */
+async function addTask() {
+    const input = document.getElementById('new-task');
+    const difficultySelect = document.getElementById('task-difficulty');
+    const recurringToggle = document.getElementById('is-recurring');
+    const recurrenceType = document.getElementById('recurrence-type');
+    const recurrenceValue = document.getElementById('recurrence-value');
+    const dueTimeInput = document.getElementById('due-time');
+    
+    const text = input.value.trim();
+    const difficulty = difficultySelect.value;
+    const points = POINTS_CONFIG[difficulty];
+
+    if (text) {
+        const taskId = Date.now().toString(); 
+        
+        const newTaskData = {
+            id: taskId,
+            text: text,
+            completed: false,
+            difficulty: difficulty,
+            points: points,
+            createdAt: new Date().getTime(),
+            isRecurring: recurringToggle.checked,
+            recurrenceType: recurringToggle.checked ? recurrenceType.value : null,
+            recurrenceValue: recurringToggle.checked ? parseInt(recurrenceValue.value) : 1,
+            dueTime: dueTimeInput.value || null
+        };
+
+        if (appSettings.socialShareEnabled) {
+            const tasksRef = window.ref(window.db, TASKS_PATH);
+            try {
+                await window.push(tasksRef, { ...newTaskData, id: null });
+                input.value = '';
+                dueTimeInput.value = '';
+                recurringToggle.checked = false;
+                document.getElementById('recurrence-options').style.display = 'none';
+            } catch (e) {
+                console.error("Erreur Firebase:", e);
+                alert("Erreur réseau: impossible d'ajouter la tâche au serveur.");
+            }
+        } else {
+            tasks.push(newTaskData);
+            input.value = '';
+            dueTimeInput.value = '';
+            recurringToggle.checked = false;
+            document.getElementById('recurrence-options').style.display = 'none';
+            saveLocalData();
+            updateUI();
+        }
+    }
+}
+
+/** Bascule l'état de complétion d'une tâche. */
+async function toggleTaskCompletion(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const newCompletedStatus = !task.completed;
+    let pointsChange = 0;
+
+    if (newCompletedStatus) {
+        pointsChange = task.points;
+        pointsHistory.push({ 
+            date: new Date().toLocaleDateString('fr-FR'), 
+            points: task.points, 
+            reason: `Tâche complétée: "${task.text}"` 
+        });
+        triggerHaptics('success');
+    } else {
+        pointsChange = -task.points;
+        triggerHaptics('error');
+    }
+    totalPoints += pointsChange;
+
+    task.completed = newCompletedStatus;
+
+    if (appSettings.socialShareEnabled) {
+        const taskRef = window.ref(window.db, `${TASKS_PATH}/${taskId}`);
+        try {
+            await window.set(taskRef, task); 
+            await saveFirebaseState('stats', { currentStreak, maxStreak, totalPoints });
+            await saveFirebaseState('pointsHistory', pointsHistory);
+        } catch (e) {
+            console.error("Erreur Firebase:", e);
+        }
+    } else {
+        saveLocalData();
+        updateUI();
+    }
+}
+
+
+/** Archive une tâche. */
+async function archiveTask(taskId) {
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) return;
+    
+    const taskToArchive = tasks[taskIndex];
+
+    if (appSettings.socialShareEnabled) {
+        const taskRef = window.ref(window.db, `${TASKS_PATH}/${taskId}`);
+        const archiveRef = window.ref(window.db, ARCHIVE_PATH);
+
+        try {
+            await window.push(archiveRef, { ...taskToArchive, archivedDate: new Date().toLocaleDateString('fr-FR') });
+            await window.remove(taskRef);
+        } catch (e) {
+            console.error("Erreur Firebase:", e);
+            alert("Erreur réseau: impossible d'archiver la tâche.");
+        }
+    } else {
+        tasks.splice(taskIndex, 1);
+        archive.push({ ...taskToArchive, archivedDate: new Date().toLocaleDateString('fr-FR') });
+        saveLocalData();
+        updateUI();
+    }
+}
+
+/** Restaure une tâche depuis l'archive. */
+async function restoreTask(taskId) {
+    const taskIndex = archive.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) return;
+
+    const taskToRestore = archive[taskIndex];
+    delete taskToRestore.archivedDate;
+    
+    if (appSettings.socialShareEnabled) {
+        const tasksRef = window.ref(window.db, `${TASKS_PATH}/${taskId}`);
+        await window.set(tasksRef, taskToRestore);
+        
+        const newArchive = archive.filter(t => t.id !== taskId);
+        await saveFirebaseState('archive', newArchive);
+
+    } else {
+        archive.splice(taskIndex, 1);
+        tasks.push(taskToRestore);
+        saveLocalData();
+        updateUI();
+    }
+}
 
 
 // --- 4. Logique de la Boutique et du Profil ---
 
-// NOUVELLE FONCTION: Acheter un article
+/** Acheter un article. */
 function buyItem(itemId) {
     const item = shopItems.find(i => i.id === itemId);
     if (!item) return;
@@ -174,7 +409,7 @@ function buyItem(itemId) {
             updateUI();
             alert(`Icône ${item.value} équipée !`);
         } else {
-             alert(`${item.name} déjà possédé !`);
+             alert(`${item.name} déjà possédé ou utilitaire utilisé !`);
         }
         return;
     }
@@ -183,12 +418,11 @@ function buyItem(itemId) {
         totalPoints -= item.cost;
         item.owned = true;
         
-        // Logique d'application immédiate (pour les icônes)
         if (item.type === 'icon') {
             profile.icon = item.value; 
         } else if (item.type === 'utility' && item.value === 'reset_streak') {
-            // Logique de l'utilitaire
-            alert("Utilitaire acheté. (L'effet devrait être appliqué ici)."); 
+            currentStreak = 1; // Commence une nouvelle série de 1
+            alert("Série réinitialisée ! Votre nouvelle série est de 1.");
         }
         
         saveLocalData();
@@ -200,12 +434,11 @@ function buyItem(itemId) {
     }
 }
 
-// NOUVELLE FONCTION: Partager le profil
+/** Partager le profil. */
 function shareProfile() {
     const currentLevel = calculateLevel();
     const profileText = `Mon Profil de Gestion de Tâches :\nNiveau ${currentLevel} (${totalPoints} points)\nSérie Max : ${maxStreak} jours\nIcône Actuelle : ${profile.icon}`;
     
-    // Utilisation de l'API Web Share pour le partage natif (Median le gère souvent)
     if (navigator.share) {
         navigator.share({
             title: 'Mon Profil de Tâches Gamifié',
@@ -213,7 +446,6 @@ function shareProfile() {
         }).then(() => console.log('Partage de profil réussi'))
           .catch((error) => console.log('Erreur de partage', error));
     } else {
-        // Fallback pour les navigateurs ne supportant pas l'API
         prompt("Copiez ce texte pour partager votre profil :", profileText);
     }
 }
@@ -221,19 +453,11 @@ function shareProfile() {
 
 // --- 5. Sauvegarde/Restauration Manuelle ---
 
-// NOUVELLE FONCTION: Exporter les données
+/** Exporter les données. */
 function exportData() {
     const data = {
-        tasks,
-        archive,
-        currentStreak,
-        maxStreak,
-        totalPoints,
-        streakHistory,
-        pointsHistory,
-        appSettings,
-        shopItems,
-        profile
+        tasks, archive, currentStreak, maxStreak, totalPoints,
+        streakHistory, pointsHistory, appSettings, shopItems, profile
     };
     const dataStr = JSON.stringify(data, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
@@ -248,7 +472,7 @@ function exportData() {
     alert('Données exportées avec succès !');
 }
 
-// NOUVELLE FONCTION: Importer les données
+/** Importer les données. */
 function importData(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -258,7 +482,6 @@ function importData(event) {
         try {
             const importedData = JSON.parse(e.target.result);
             
-            // Mise à jour de toutes les variables globales
             tasks = importedData.tasks || [];
             archive = importedData.archive || [];
             currentStreak = importedData.currentStreak || 0;
@@ -272,7 +495,7 @@ function importData(event) {
             
             saveLocalData();
             alert('Données importées et sauvegardées !');
-            window.location.reload(); // Recharger pour appliquer les changements
+            window.location.reload(); 
         } catch (error) {
             alert('Erreur: Le fichier n\'est pas un JSON valide ou est corrompu.');
             console.error(error);
@@ -282,37 +505,119 @@ function importData(event) {
 }
 
 
-// --- 6. Gestion des Filtres et du Tri ---
+// --- 6. Gestion des Filtres, Tri et Navigation ---
 
-// NOUVELLE FONCTION: Définir le filtre (all ou todo)
+/** Définir le filtre (all ou todo). CORRIGÉ POUR LE BUG */
 function setTaskFilter(filter) {
     currentFilter = filter;
+    
+    // Mettre à jour l'état visuel du bouton
     document.querySelectorAll('.tasks-controls button').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`filter-${filter}`).classList.add('active');
-    updateUI();
+    
+    const filterBtn = document.getElementById(`filter-${filter}`);
+    if(filterBtn) {
+        filterBtn.classList.add('active');
+    }
+    
+    updateUI(); 
 }
 
-// NOUVELLE FONCTION: Définir le tri
+/** Définir le tri. */
 function setTaskSort(sort) {
     currentSort = sort;
     updateUI();
 }
 
-// NOUVELLE FONCTION: Basculer l'affichage des sections
-function toggleSection(sectionId) {
-    document.querySelectorAll('section').forEach(sec => {
-        if (sec.id && sec.id.endsWith('-section') && sec.id !== sectionId) {
-            sec.classList.add('hidden');
-        }
+/** Gère l'affichage des différents écrans (onglets). */
+function showScreen(screenId, clickedButton) {
+    // Masquer tous les écrans principaux
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active-screen');
+        screen.classList.add('hidden-screen');
     });
+
+    // Afficher l'écran demandé
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.remove('hidden-screen');
+        targetScreen.classList.add('active-screen');
+    }
+
+    // Mettre à jour les boutons de navigation
+    document.querySelectorAll('.bottom-nav button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    if (clickedButton) {
+        clickedButton.classList.add('active');
+    }
+    
+    // Si c'est l'écran des tâches, on s'assure que le filtre est bien appliqué
+    if (screenId === 'tasks-screen' || screenId === 'history-section') {
+        updateUI(); 
+    }
+}
+
+/** Bascule l'affichage du menu/modal (utilisé pour les Réglages). */
+function toggleSection(sectionId) {
     const section = document.getElementById(sectionId);
     section.classList.toggle('hidden');
 }
 
-// ... (triggerHaptics, scheduleTaskNotification restent inchangées) ...
+
+// --- 7. Notifications et Haptics ---
+
+/** Planifie la notification d'échéance. */
+function scheduleTaskNotification(task) {
+    if (!task.dueTime) return;
+
+    const [hour, minute] = task.dueTime.split(':').map(Number);
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const dueDate = new Date(today);
+    dueDate.setHours(hour, minute, 0, 0);
+
+    const notificationTime = new Date(dueDate.getTime() - appSettings.notificationLeadTimeMinutes * 60000);
+
+    if (notificationTime <= now) return;
+
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.gonative) {
+        window.webkit.messageHandlers.gonative.postMessage({
+            command: 'scheduleNotification',
+            arguments: {
+                id: task.id,
+                title: "⚠️ URGENT: Heure Limite Approche",
+                body: `La tâche "${task.text}" est due dans ${appSettings.notificationLeadTimeMinutes} minutes !`,
+                time: notificationTime.toISOString(),
+            }
+        });
+        console.log(`Notification planifiée pour la tâche ${task.id} à ${notificationTime.toLocaleTimeString()}`);
+    } else {
+        console.log(`[Simulation] Notification planifiée pour ${task.text} à ${notificationTime.toLocaleTimeString()}`);
+    }
+}
+
+/** Déclenche un retour haptique (vibration) via le pont Median.co. */
+function triggerHaptics(type = 'success') {
+    if (!appSettings.hapticsEnabled) return; 
+
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.gonative) {
+        let feedbackType = 'impactLight'; 
+        if (type === 'success') feedbackType = 'notificationSuccess'; 
+        if (type === 'error') feedbackType = 'notificationError';
+
+        window.webkit.messageHandlers.gonative.postMessage({
+            command: 'hapticEngine',
+            arguments: {
+                feedback: feedbackType
+            }
+        });
+    }
+}
 
 
-// --- 7. Mise à Jour de l'Interface Utilisateur (UI) ---
+// --- 8. Mise à Jour de l'Interface Utilisateur (UI) ---
 
 /** Met à jour tous les éléments d'affichage. */
 function updateUI() {
@@ -322,7 +627,6 @@ function updateUI() {
     document.getElementById('max-streak').textContent = maxStreak;
     document.getElementById('total-points').textContent = totalPoints;
     
-    // NOUVEAU: Affichage du niveau et icône du profil
     document.getElementById('level-display').textContent = `Niv. ${currentLevel}`;
     document.getElementById('profile-icon').textContent = profile.icon;
     document.getElementById('current-profile-icon').textContent = profile.icon;
@@ -341,10 +645,8 @@ function updateUI() {
     
     // B. Tri
     if (currentSort === 'difficulty') {
-        // Trie par points décroissants (Hard > Medium > Easy)
         displayTasks.sort((a, b) => POINTS_CONFIG[b.difficulty] - POINTS_CONFIG[a.difficulty]);
     } else if (currentSort === 'time') {
-        // Trie par dueTime croissant
         displayTasks.sort((a, b) => {
             if (!a.dueTime && !b.dueTime) return 0;
             if (!a.dueTime) return 1; 
@@ -354,19 +656,18 @@ function updateUI() {
     }
 
 
-    // 3. Afficher la liste des tâches (en utilisant displayTasks)
+    // 3. Afficher la liste des tâches
     const taskListElement = document.getElementById('tasks-list');
     taskListElement.innerHTML = '';
     
     if (displayTasks.length === 0) {
-        taskListElement.innerHTML = `<li>${currentFilter === 'todo' ? '🎉 Tout est fait !' : 'Aucune tâche à afficher.'}</li>`;
+        taskListElement.innerHTML = `<li>${currentFilter === 'todo' ? '🎉 Toutes les tâches actives sont faites !' : 'Aucune tâche à afficher.'}</li>`;
     }
 
     displayTasks.forEach(task => {
         const li = document.createElement('li');
         li.className = task.completed ? 'completed' : '';
         
-        // ... (La construction du LI reste la même, utilisant task)
         let recurrenceBadge = '';
         if (task.isRecurring) {
              recurrenceBadge = `<span class="badge recurrence-badge">🔁 Tous les ${task.recurrenceValue} ${task.recurrenceType.replace('ly', 's').replace('daily', 'jour(s)')}</span>`;
@@ -400,7 +701,7 @@ function updateUI() {
         taskListElement.appendChild(li);
     });
 
-    // 4. Afficher la liste des archives (Archive section should be toggled by a button now)
+    // 4. Afficher la liste des archives (section historique)
     const archiveListElement = document.getElementById('archive-list');
     archiveListElement.innerHTML = '';
     if (archive.length === 0) {
@@ -416,7 +717,7 @@ function updateUI() {
     });
     
     
-    // 5. NOUVEAU: Afficher la boutique
+    // 5. Afficher la boutique
     const shopListElement = document.getElementById('shop-items-list');
     shopListElement.innerHTML = '';
     shopItems.forEach(item => {
@@ -440,9 +741,37 @@ function updateUI() {
 
 }
 
-// ... (Autres fonctions comme editTask, toggleSettingsMenu restent inchangées) ...
+// Placeholder pour l'édition de tâche
+function editTask(taskId) {
+    alert(`Fonctionnalité d'édition de la tâche ${taskId} à implémenter.`)
+}
 
-// --- 8. Exécution au Chargement ---
+function saveSettings() {
+    const oldSyncStatus = appSettings.socialShareEnabled;
+    
+    appSettings.hapticsEnabled = document.getElementById('haptics-toggle').checked;
+    appSettings.socialShareEnabled = document.getElementById('social-share-toggle').checked;
+    
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(appSettings));
+    
+    alert('Réglages sauvegardés !');
+    
+    if (appSettings.socialShareEnabled && !oldSyncStatus) {
+        alert("Synchronisation activée. Tentative d'envoi des données locales à Firebase...");
+        loadData(); 
+    } else if (!appSettings.socialShareEnabled && oldSyncStatus) {
+        alert("Synchronisation désactivée. Passage en mode local.");
+        loadTasksFromLocal(); 
+    }
+}
+
+function loadSettingsUI() {
+    document.getElementById('haptics-toggle').checked = appSettings.hapticsEnabled;
+    document.getElementById('social-share-toggle').checked = appSettings.socialShareEnabled;
+}
+
+
+// --- 9. Exécution au Chargement ---
 
 document.addEventListener('DOMContentLoaded', () => {
     loadData(); 
@@ -452,6 +781,6 @@ document.addEventListener('DOMContentLoaded', () => {
         Notification.requestPermission();
     }
     
-    // Initialiser le filtre "all" comme actif
-    document.getElementById('filter-all').classList.add('active');
+    // Assurer que le premier écran est bien actif au chargement
+    showScreen('tasks-screen', document.querySelector('.bottom-nav button:first-child'));
 });

@@ -1,0 +1,12 @@
+{
+    "@@locale": "it",
+    "appTitle": "Lista di Cose da Fare Gamificata",
+    "tasksTabTitle": "Compiti",
+    "shopTabTitle": "Negozio",
+    "statsTabTitle": "Statistiche",
+    "profileTabTitle": "Profilo",
+    "socialTabTitle": "Sociale",
+    "addTaskTitle": "Aggiungi un nuovo compito",
+    "todoListTitle": "Compiti da fare ({count})",
+    "addHint": "Aggiungi un nuovo compito..."
+}

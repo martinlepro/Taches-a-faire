@@ -1,15 +1,17 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // NÉCESSAIRE
+import 'package:provider/provider.dart'; 
+import 'package:flutter_localizations/flutter_localizations.dart'; // NOUVEAU
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';     // NOUVEAU (fichier généré)
+
 import 'screens/tasks_screen.dart'; 
 import 'screens/shop_screen.dart';
-import 'models/task.dart'; 
-import 'models/profile.dart'; 
+// NOTE: Les autres imports de modèles/state ont été omis pour la clarté, mais ils doivent rester
+
 import 'state/app_state.dart'; 
 
 
 void main() {
-  // Le point d'entrée crée et fournit l'état AppState à tous les widgets enfants
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(), 
@@ -24,8 +26,27 @@ class GamifiedTodoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 1. AJOUTER LA CONFIGURATION DES LOCALISATIONS
     return MaterialApp(
-      title: 'Ma To-Do List Gamifiée',
+      // --- INTERNATIONALISATION (i18n) ---
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        // AJOUTEZ ICI TOUTES LES LANGUES QUE VOUS AVEZ DÉFINIES DANS lib/l10n/
+        Locale('en'), // Anglais
+        Locale('fr'), // Français
+        Locale('de'), // Allemand (Exemple)
+        Locale('es'), // Espagnol (Exemple)
+        Locale('it'), // Italien (Exemple)
+        // ... ajoutez les 5 autres locales ici (ex: 'pt', 'nl', 'sv', 'pl', 'ru')
+      ],
+      // ------------------------------------
+      
+      title: 'Ma To-Do List Gamifiée', // Peut être remplacé par un appel i18n si vous le souhaitez
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         primaryColor: Colors.deepPurple,
@@ -55,13 +76,13 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // Liste des écrans à afficher pour chaque onglet.
   static const List<Widget> _screens = <Widget>[
-    TasksScreen(), // Écran réel
-    ShopScreen(), // Écran réel
-    Center(child: Text('3. Écran des Statistiques', style: TextStyle(fontSize: 20))),
-    Center(child: Text('4. Écran du Profil', style: TextStyle(fontSize: 20))),
-    Center(child: Text('5. Écran Social (à développer)', style: TextStyle(fontSize: 20))),
+    TasksScreen(),
+    ShopScreen(),
+    // ... les autres écrans (Stats, Profile, Social)
+    Center(child: Text('Stats Écran')),
+    Center(child: Text('Profil Écran')),
+    Center(child: Text('Social Écran')),
   ];
 
   void _onItemTapped(int index) {
@@ -72,73 +93,72 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // NOUVEAU : OBTENIR L'OBJET DE TRADUCTION
+    final localizations = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ma To-Do List Gamifiée'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Ouverture des Réglages...'))
-              );
-            },
-          ),
-        ],
+        title: Text(_screens[_selectedIndex].toStringShort()), // À modifier plus tard
       ),
-      
-      body: _screens.elementAt(_selectedIndex),
-      
-      // Barre de navigation personnalisée avec fond blanc arrondi
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.transparent, 
-        elevation: 0, 
-        child: Container(
-          height: 60, 
-          margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0), 
-          decoration: BoxDecoration(
-            color: Colors.white, 
-            borderRadius: BorderRadius.circular(25.0), 
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                spreadRadius: 2,
-                blurRadius: 15,
-                offset: const Offset(0, 5), 
-              ),
-            ],
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: Container(
+        // ... (votre code pour le décor de la barre de navigation)
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(25.0),
+            topRight: Radius.circular(25.0),
           ),
-          child: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.list_alt, size: 28),
-                label: 'Tâches',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.store, size: 28),
-                label: 'Boutique',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.show_chart, size: 28),
-                label: 'Stats',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person, size: 28),
-                label: 'Profil',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.group, size: 28),
-                label: 'Social',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Theme.of(context).primaryColor,
-            unselectedItemColor: Colors.grey,
-            onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed, 
-            backgroundColor: Colors.transparent, 
-            elevation: 0, 
-            showUnselectedLabels: true,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(25.0), 
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  spreadRadius: 2,
+                  blurRadius: 15,
+                  offset: const Offset(0, 5), 
+                ),
+              ],
+            ),
+            child: BottomNavigationBar(
+              // REMPLACER LES ÉTIQUETTES (LABELS) EN DUR PAR LES CLÉS DE TRADUCTION
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.list_alt, size: 28),
+                  label: localizations.tasksTabTitle, // UTILISATION i18n
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.store, size: 28),
+                  label: localizations.shopTabTitle, // UTILISATION i18n
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.show_chart, size: 28),
+                  label: localizations.statsTabTitle, // UTILISATION i18n
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.person, size: 28),
+                  label: localizations.profileTabTitle, // UTILISATION i18n
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.group, size: 28),
+                  label: localizations.socialTabTitle, // UTILISATION i18n
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Theme.of(context).primaryColor,
+              unselectedItemColor: Colors.grey,
+              onTap: _onItemTapped,
+              type: BottomNavigationBarType.fixed, 
+              backgroundColor: Colors.transparent, 
+              elevation: 0, 
+              showUnselectedLabels: true,
+              
+              // --- CORRECTION DE LA TAILLE DE POLICE POUR ÉVITER LA TRONCATURE ---
+              selectedFontSize: 12.0,
+              unselectedFontSize: 12.0,
+              // ----------------------------------------------------------------
+            ),
           ),
         ),
       ),

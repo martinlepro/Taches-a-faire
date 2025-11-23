@@ -1,17 +1,20 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; 
-import 'package:flutter_localizations/flutter_localizations.dart'; // NOUVEAU
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';     // NOUVEAU (fichier généré)
+import 'package:provider/provider.dart'; // NÉCESSAIRE
 
+// Importations des fichiers locaux
 import 'screens/tasks_screen.dart'; 
 import 'screens/shop_screen.dart';
-// NOTE: Les autres imports de modèles/state ont été omis pour la clarté, mais ils doivent rester
-
+import 'models/task.dart'; 
+import 'models/profile.dart'; 
 import 'state/app_state.dart'; 
 
+// 🔑 NOUVEAU: Imports pour l'internationalisation
+import 'package:flutter_localizations/flutter_localizations.dart'; 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Fichier généré
 
 void main() {
+  // Le point d'entrée crée et fournit l'état AppState à tous les widgets enfants
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(), 
@@ -26,27 +29,25 @@ class GamifiedTodoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. AJOUTER LA CONFIGURATION DES LOCALISATIONS
     return MaterialApp(
-      // --- INTERNATIONALISATION (i18n) ---
-      localizationsDelegates: [
+      title: 'Ma To-Do List Gamifiée',
+      
+      // --- CONFIGURATION DE L'INTERNATIONALISATION (i18n) ---
+      // 🔑 CORRECTION MAJEURE: Retire le mot-clé 'const' ici!
+      localizationsDelegates: [ 
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      // La liste des langues supportées peut rester constante
       supportedLocales: const [
         Locale('en'), // Anglais
         Locale('fr'), // Français
-        Locale('de'), // Allemand
-        Locale('es'), // Espagnol
-        Locale('it'), // Italien
-        Locale('nl'), // Néerlandais
-        Locale('pt'), // Portugais
-        // Ajoutez d'autres si nécessaire (ex: Locale('ru'), Locale('pl'), Locale('sv'))
+        // Ajoutez d'autres Locales supportées ici
       ],
+      // ----------------------------------------------------
       
-      title: 'Ma To-Do List Gamifiée', // Peut être remplacé par un appel i18n si vous le souhaitez
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         primaryColor: Colors.deepPurple,
@@ -63,10 +64,7 @@ class GamifiedTodoApp extends StatelessWidget {
   }
 }
 
-// ==============================================
-// Écran Principal (Gère la Navigation par Onglets)
-// ==============================================
-class MainScreen extends StatefulWidget {
+// ==============================================\n// Écran Principal (Gère la Navigation par Onglets)\n// ==============================================\nclass MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
@@ -76,13 +74,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _screens = <Widget>[
-    TasksScreen(),
-    ShopScreen(),
-    // ... les autres écrans (Stats, Profile, Social)
-    Center(child: Text('Stats Écran')),
-    Center(child: Text('Profil Écran')),
-    Center(child: Text('Social Écran')),
+  final List<Widget> _screens = [
+    const TasksScreen(),
+    const ShopScreen(),
+    const Center(child: Text("Statistiques")),
+    const Center(child: Text("Profil")),
+    const Center(child: Text("Social")),
   ];
 
   void _onItemTapped(int index) {
@@ -93,72 +90,84 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // NOUVEAU : OBTENIR L'OBJET DE TRADUCTION
-    final localizations = AppLocalizations.of(context)!;
-    
+    // 🔑 CORRECTION: Récupération de l'objet de localisation
+    final localizations = AppLocalizations.of(context)!; 
+
+    String currentTitle;
+    switch (_selectedIndex) {
+      case 0:
+        // 🔑 Utilisation des clés localisées (doivent être définies dans vos fichiers .arb)
+        currentTitle = localizations.tasksTitle; 
+        break;
+      case 1:
+        currentTitle = localizations.shopTitle; 
+        break;
+      case 2:
+        currentTitle = localizations.statsTitle;
+        break;
+      case 3:
+        currentTitle = localizations.profileTitle;
+        break;
+      case 4:
+        currentTitle = localizations.socialTitle;
+        break;
+      default:
+        currentTitle = 'To-Do Gamifiée';
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_screens[_selectedIndex].toStringShort()), // À modifier plus tard
+        title: Text(currentTitle),
       ),
       body: _screens[_selectedIndex],
-      bottomNavigationBar: Container(
-        // ... (votre code pour le décor de la barre de navigation)
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(25.0),
-            topRight: Radius.circular(25.0),
+      
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0), 
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25.0), 
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                spreadRadius: 2,
+                blurRadius: 15,
+                offset: const Offset(0, 5), 
+              ),
+            ],
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25.0), 
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  spreadRadius: 2,
-                  blurRadius: 15,
-                  offset: const Offset(0, 5), 
-                ),
-              ],
-            ),
-            child: BottomNavigationBar(
-              // REMPLACER LES ÉTIQUETTES (LABELS) EN DUR PAR LES CLÉS DE TRADUCTION
-              items: <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.list_alt, size: 28),
-                  label: localizations.tasksTabTitle, // UTILISATION i18n
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.store, size: 28),
-                  label: localizations.shopTabTitle, // UTILISATION i18n
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.show_chart, size: 28),
-                  label: localizations.statsTabTitle, // UTILISATION i18n
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.person, size: 28),
-                  label: localizations.profileTabTitle, // UTILISATION i18n
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.group, size: 28),
-                  label: localizations.socialTabTitle, // UTILISATION i18n
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedItemColor: Theme.of(context).primaryColor,
-              unselectedItemColor: Colors.grey,
-              onTap: _onItemTapped,
-              type: BottomNavigationBarType.fixed, 
-              backgroundColor: Colors.transparent, 
-              elevation: 0, 
-              showUnselectedLabels: true,
-              
-              // --- CORRECTION DE LA TAILLE DE POLICE POUR ÉVITER LA TRONCATURE ---
-              selectedFontSize: 12.0,
-              unselectedFontSize: 12.0,
-              // ----------------------------------------------------------------
-            ),
+          child: BottomNavigationBar(
+            // 🔑 Utilisation des chaînes localisées pour les étiquettes
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.list_alt, size: 28),
+                label: localizations.tasks, 
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.store, size: 28),
+                label: localizations.shop, 
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.show_chart, size: 28),
+                label: localizations.stats,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.person, size: 28),
+                label: localizations.profile,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.group, size: 28),
+                label: localizations.social,
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Theme.of(context).primaryColor,
+            unselectedItemColor: Colors.grey,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed, 
+            backgroundColor: Colors.transparent, 
+            elevation: 0, 
+            showUnselectedLabels: true,
           ),
         ),
       ),

@@ -1,0 +1,12 @@
+{
+  "@@locale": "ja",
+  "appTitle": "ゲーミフィケーションされたTo-Doリスト",
+  "tasksTabTitle": "タスク",
+  "shopTabTitle": "ショップ",
+  "statsTabTitle": "統計",
+  "profileTabTitle": "プロフィール",
+  "socialTabTitle": "ソーシャル",
+  "addTaskTitle": "新しいタスクを追加",
+  "todoListTitle": "やること ({count})",
+  "addHint": "新しいタスクを追加..."
+}

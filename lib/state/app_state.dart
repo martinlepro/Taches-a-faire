@@ -1,49 +1,69 @@
 // lib/state/app_state.dart
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart'; // Nécessite l'ajout de 'uuid' dans pubspec.yaml
+import 'package:uuid/uuid.dart';
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
-// Importe vos modèles de données
 import '../models/task.dart';
 import '../models/profile.dart';
 
-// Constante pour l'ID unique
 const uuid = Uuid();
 
-// AppState est la source unique de vérité de votre application.
 class AppState extends ChangeNotifier {
-  // --- Gestion de la locale (i18n) ---
+  // --- Locale management with persistence ---
   Locale? _locale;
   Locale? get locale => _locale;
 
-  // Définit la locale manuellement (ex: Locale('fr') ou Locale('en'))
-  void setLocale(Locale? locale) {
+  Future<void> setLocale(Locale? locale) async {
     _locale = locale;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (locale == null) {
+        await prefs.remove('locale');
+      } else {
+        await prefs.setString('locale', locale.languageCode);
+      }
+    } catch (_) {
+      // ignore persistence errors
+    }
     notifyListeners();
   }
 
-  // Permet de remettre la locale par défaut du système (null)
-  void clearLocale() {
+  Future<void> clearLocale() async {
     _locale = null;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('locale');
+    } catch (_) {}
     notifyListeners();
   }
 
-  // --- Propriétés de l'état (données de l'application) ---
-  // Note: Nous utilisons copyWith dans Profile, assurez-vous de l'ajouter (voir section 4)
+  // --- App data ---
   Profile _profile = Profile(icon: '👤', totalPoints: 0, currentStreak: 0, maxStreak: 0);
   List<Task> _tasks = [];
 
-  // --- Getters (Accesseurs en lecture seule) ---
   Profile get profile => _profile;
-  List<Task> get tasks => List.unmodifiable(_tasks); 
+  List<Task> get tasks => List.unmodifiable(_tasks);
 
-  // Initialisation
   AppState() {
     _loadInitialData();
+    _loadLocaleFromPrefs();
+  }
+
+  Future<void> _loadLocaleFromPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lang = prefs.getString('locale');
+      if (lang != null && lang.isNotEmpty) {
+        _locale = Locale(lang);
+        notifyListeners();
+      }
+    } catch (_) {
+      // ignore
+    }
   }
 
   void _loadInitialData() {
-    // Liste de démo
     _tasks = [
       Task(
         id: uuid.v4(),
@@ -60,13 +80,9 @@ class AppState extends ChangeNotifier {
         points: 3,
       ),
     ];
-    // Notifie les widgets après le chargement initial
-    notifyListeners(); 
+    notifyListeners();
   }
 
-  // --- Méthodes de la LOGIQUE (l'équivalent des fonctions de app.js) ---
-
-  // 1. Ajouter une tâche
   void addTask(String text, String difficulty, [bool isRecurring = false]) {
     int points;
     switch (difficulty) {
@@ -95,7 +111,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 2. Compléter une tâche (avec logique de gamification)
   void completeTask(String taskId) {
     final taskIndex = _tasks.indexWhere((task) => task.id == taskId);
 
@@ -103,7 +118,6 @@ class AppState extends ChangeNotifier {
       final completedTask = _tasks[taskIndex].copyWith(completed: true);
       _tasks[taskIndex] = completedTask;
 
-      // Ajouter des points et mettre à jour la série
       _profile = _profile.copyWith(
         totalPoints: _profile.totalPoints + completedTask.points,
       );
@@ -112,20 +126,18 @@ class AppState extends ChangeNotifier {
         currentStreak: _profile.currentStreak + 1,
       );
       if (_profile.currentStreak > _profile.maxStreak) {
-         _profile = _profile.copyWith(maxStreak: _profile.currentStreak);
+        _profile = _profile.copyWith(maxStreak: _profile.currentStreak);
       }
 
       notifyListeners();
     }
   }
 
-  // 3. Supprimer une tâche
   void deleteTask(String taskId) {
     _tasks.removeWhere((task) => task.id == taskId);
     notifyListeners();
   }
-  
-  // 4. Acheter un article de la boutique (logique simple)
+
   bool buyItem(int cost) {
     if (_profile.totalPoints >= cost) {
       _profile = _profile.copyWith(totalPoints: _profile.totalPoints - cost);

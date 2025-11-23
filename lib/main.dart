@@ -11,7 +11,8 @@ import 'state/app_state.dart';
 
 // 🔑 Imports pour l'internationalisation
 import 'package:flutter_localizations/flutter_localizations.dart'; 
-// IMPORT MODIFIÉ : importer le fichier généré directement depuis lib/l10n
+// IMPORT PROPOSÉ : importer le fichier généré directement depuis lib/l10n
+// (le fichier est généré par `flutter gen-l10n` et se trouve normalement dans lib/l10n/app_localizations.dart)
 import 'l10n/app_localizations.dart'; // Fichier généré par flutter gen-l10n
 
 void main() {
@@ -66,7 +67,7 @@ class GamifiedTodoApp extends StatelessWidget {
 // Écran Principal (Gère la Navigation par Onglets)
 // ==============================================
 class MainScreen extends StatefulWidget {
-  // ⬅️ CORRECTION : Suppression du mot-clé 'const' ici
+  // ⬅️ CORRECTION : Suppression du mot-clé 'const' ici si nécessaire
   MainScreen({super.key}); 
 
   @override

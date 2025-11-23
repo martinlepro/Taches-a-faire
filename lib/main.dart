@@ -60,9 +60,12 @@ class GamifiedTodoApp extends StatelessWidget {
   }
 }
 
-// ==============================================\n// Écran Principal (StatefulWidget Corrigé)\n// ==============================================\nclass MainScreen extends StatefulWidget {
-  // ✅ L'erreur était là: le 'const' est sur le constructeur.
-  const MainScreen({super.key}); 
+// ==============================================
+// Écran Principal (Gère la Navigation par Onglets)
+// ==============================================
+class MainScreen extends StatefulWidget {
+  // ⬅️ CORRECTION : Suppression du mot-clé 'const' ici
+  MainScreen({super.key}); 
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -71,12 +74,12 @@ class GamifiedTodoApp extends StatelessWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = const [
-    TasksScreen(),
-    ShopScreen(),
-    Center(child: Text("Statistiques")),
-    Center(child: Text("Profil")),
-    Center(child: Text("Social")),
+  static final List<Widget> _widgetOptions = <Widget>[
+    const TasksScreen(), 
+    const ShopScreen(),
+    const Text('Stats Screen Placeholder'),
+    const Text('Profile Screen Placeholder'),
+    const Text('Social Screen Placeholder'),
   ];
 
   void _onItemTapped(int index) {
@@ -87,40 +90,19 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 🔑 Récupération de l'objet de localisation
-    // L'erreur 'The getter 'AppLocalizations' isn't defined' sera corrigée
-    // une fois que ce fichier est généré (voir point 3).
-    final localizations = AppLocalizations.of(context)!; 
-
-    String currentTitle;
-    switch (_selectedIndex) {
-      case 0:
-        currentTitle = localizations.tasksTitle; 
-        break;
-      case 1:
-        currentTitle = localizations.shopTitle; 
-        break;
-      case 2:
-        currentTitle = localizations.statsTitle;
-        break;
-      case 3:
-        currentTitle = localizations.profileTitle;
-        break;
-      case 4:
-        currentTitle = localizations.socialTitle;
-        break;
-      default:
-        currentTitle = 'To-Do Gamifiée';
-    }
-
+    // 🔑 Obtient les chaînes localisées une seule fois
+    final localizations = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentTitle),
+        title: Text(localizations.appTitle), // 🔑 Utilisation du titre localisé
+        elevation: 0,
       ),
-      body: _screens[_selectedIndex],
-      
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0), 
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,

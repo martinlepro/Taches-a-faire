@@ -32,7 +32,7 @@ class GamifiedTodoApp extends StatelessWidget {
       title: 'Ma To-Do List Gamifiée',
       
       // --- CONFIGURATION DE L'INTERNATIONALISATION (i18n) ---
-      localizationsDelegates: [ // PAS de 'const' ici!
+      localizationsDelegates: [ 
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -55,7 +55,8 @@ class GamifiedTodoApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.grey[50], 
       ),
-      home: const MainScreen(),
+      // ⬅️ NOTE : Le widget MainScreen est ici appelé sans 'const'
+      home: MainScreen(),
     );
   }
 }

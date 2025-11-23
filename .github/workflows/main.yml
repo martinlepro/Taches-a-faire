@@ -31,9 +31,9 @@ jobs:
       - name: Flutter Pub Get
         run: flutter pub get 
 
-      # 🔑 NOUVELLE ÉTAPE CORRIGÉE: Générer les fichiers de localisation
+      # 🔑 NOUVELLE ÉTAPE CORRIGÉE: Générer les fichiers de localisation (Vérifiez bien cette indentation)
       - name: Generate Localizations Code (l10n)
-        run: flutter gen-l10n
+        run: flutter gen-l10n # ⬅️ L'erreur était probablement ici, mal indenté ou sans 'run:'
       
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/

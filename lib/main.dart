@@ -32,8 +32,7 @@ class GamifiedTodoApp extends StatelessWidget {
       title: 'Ma To-Do List Gamifiée',
       
       // --- CONFIGURATION DE L'INTERNATIONALISATION (i18n) ---
-      // 🚨 POINT CRITIQUE : Retirer le mot-clé 'const' ici!
-      localizationsDelegates: [ 
+      localizationsDelegates: [ // PAS de 'const' ici!
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -62,7 +61,7 @@ class GamifiedTodoApp extends StatelessWidget {
 }
 
 // ==============================================\n// Écran Principal (StatefulWidget Corrigé)\n// ==============================================\nclass MainScreen extends StatefulWidget {
-  // ✅ Le 'const' est seulement sur le constructeur. La structure est vitale.
+  // ✅ L'erreur était là: le 'const' est sur le constructeur.
   const MainScreen({super.key}); 
 
   @override
@@ -72,7 +71,7 @@ class GamifiedTodoApp extends StatelessWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = const [ // Peut être const car les écrans sont des const.
+  final List<Widget> _screens = const [
     TasksScreen(),
     ShopScreen(),
     Center(child: Text("Statistiques")),
@@ -89,7 +88,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     // 🔑 Récupération de l'objet de localisation
-    // L'erreur 'The getter 'AppLocalizations' isn't defined' disparaîtra si le fichier est généré
+    // L'erreur 'The getter 'AppLocalizations' isn't defined' sera corrigée
+    // une fois que ce fichier est généré (voir point 3).
     final localizations = AppLocalizations.of(context)!; 
 
     String currentTitle;

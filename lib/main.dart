@@ -11,7 +11,14 @@ import 'state/app_state.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 
-void main() {
+import 'notifications/notification_helper.dart'; // facultatif si tu ajoutes helper notification
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // si tu as un initNotifications global, appelle-le ici (mobile)
+  try {
+    await NotificationHelper.initNotifications();
+  } catch (_) {}
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(),
@@ -151,39 +158,4 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
           child: BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.list_alt, size: 28),
-                label: localizations.tasksTabTitle,
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.store, size: 28),
-                label: localizations.shopTabTitle,
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.show_chart, size: 28),
-                label: localizations.statsTabTitle,
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.person, size: 28),
-                label: localizations.profileTabTitle,
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.group, size: 28),
-                label: localizations.socialTabTitle,
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Theme.of(context).primaryColor,
-            unselectedItemColor: Colors.grey,
-            onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            showUnselectedLabels: true,
-          ),
-        ),
-      ),
-    );
-  }
-}
+            items: <

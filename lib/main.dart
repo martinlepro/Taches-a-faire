@@ -1,6 +1,6 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // NÉCESSAIRE
+import 'package:provider/provider.dart'; 
 
 // Importations des fichiers locaux
 import 'screens/tasks_screen.dart'; 
@@ -9,12 +9,11 @@ import 'models/task.dart';
 import 'models/profile.dart'; 
 import 'state/app_state.dart'; 
 
-// 🔑 NOUVEAU: Imports pour l'internationalisation
+// 🔑 Imports pour l'internationalisation
 import 'package:flutter_localizations/flutter_localizations.dart'; 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Fichier généré
 
 void main() {
-  // Le point d'entrée crée et fournit l'état AppState à tous les widgets enfants
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(), 
@@ -33,18 +32,16 @@ class GamifiedTodoApp extends StatelessWidget {
       title: 'Ma To-Do List Gamifiée',
       
       // --- CONFIGURATION DE L'INTERNATIONALISATION (i18n) ---
-      // 🔑 CORRECTION MAJEURE: Retire le mot-clé 'const' ici!
+      // 🚨 POINT CRITIQUE : Retirer le mot-clé 'const' ici!
       localizationsDelegates: [ 
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      // La liste des langues supportées peut rester constante
       supportedLocales: const [
-        Locale('en'), // Anglais
-        Locale('fr'), // Français
-        // Ajoutez d'autres Locales supportées ici
+        Locale('en'), 
+        Locale('fr'), 
       ],
       // ----------------------------------------------------
       
@@ -64,8 +61,9 @@ class GamifiedTodoApp extends StatelessWidget {
   }
 }
 
-// ==============================================\n// Écran Principal (Gère la Navigation par Onglets)\n// ==============================================\nclass MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+// ==============================================\n// Écran Principal (StatefulWidget Corrigé)\n// ==============================================\nclass MainScreen extends StatefulWidget {
+  // ✅ Le 'const' est seulement sur le constructeur. La structure est vitale.
+  const MainScreen({super.key}); 
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -74,12 +72,12 @@ class GamifiedTodoApp extends StatelessWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const TasksScreen(),
-    const ShopScreen(),
-    const Center(child: Text("Statistiques")),
-    const Center(child: Text("Profil")),
-    const Center(child: Text("Social")),
+  final List<Widget> _screens = const [ // Peut être const car les écrans sont des const.
+    TasksScreen(),
+    ShopScreen(),
+    Center(child: Text("Statistiques")),
+    Center(child: Text("Profil")),
+    Center(child: Text("Social")),
   ];
 
   void _onItemTapped(int index) {
@@ -90,13 +88,13 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 🔑 CORRECTION: Récupération de l'objet de localisation
+    // 🔑 Récupération de l'objet de localisation
+    // L'erreur 'The getter 'AppLocalizations' isn't defined' disparaîtra si le fichier est généré
     final localizations = AppLocalizations.of(context)!; 
 
     String currentTitle;
     switch (_selectedIndex) {
       case 0:
-        // 🔑 Utilisation des clés localisées (doivent être définies dans vos fichiers .arb)
         currentTitle = localizations.tasksTitle; 
         break;
       case 1:

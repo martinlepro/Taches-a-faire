@@ -11,7 +11,8 @@ import 'state/app_state.dart';
 
 // 🔑 Imports pour l'internationalisation
 import 'package:flutter_localizations/flutter_localizations.dart'; 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Fichier généré
+// IMPORT MODIFIÉ : importer le fichier généré directement depuis lib/l10n
+import 'l10n/app_localizations.dart'; // Fichier généré par flutter gen-l10n
 
 void main() {
   runApp(

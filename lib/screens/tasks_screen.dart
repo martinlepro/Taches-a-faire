@@ -1,9 +1,10 @@
 // lib/screens/tasks_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // NÉCESSAIRE
+import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
-import '../models/task.dart'; 
-import '../state/app_state.dart'; // NÉCESSAIRE
+import '../models/task.dart';
+import '../state/app_state.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -13,26 +14,25 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  final TextEditingController _taskController = TextEditingController(); 
-  String _selectedDifficulty = 'medium'; 
+  final TextEditingController _taskController = TextEditingController();
+  String _selectedDifficulty = 'medium';
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final tasks = appState.tasks; 
+    final tasks = appState.tasks;
     final todoTasks = tasks.where((t) => !t.completed).toList();
 
-    return SingleChildScrollView( 
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Ajouter une nouvelle tâche',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          
           Row(
             children: [
               Expanded(
@@ -65,27 +65,23 @@ class _TasksScreenState extends State<TasksScreen> {
                 icon: const Icon(Icons.add_task, color: Colors.deepPurple, size: 30),
                 onPressed: () {
                   if (_taskController.text.isNotEmpty) {
-                      appState.addTask(
-                        _taskController.text, 
-                        _selectedDifficulty, 
-                        false 
-                      ); 
-                      _taskController.clear();
+                    appState.addTask(
+                      _taskController.text,
+                      _selectedDifficulty,
+                      false,
+                    );
+                    _taskController.clear();
                   }
                 },
               ),
             ],
           ),
           const SizedBox(height: 20),
-          
-          // --- CORRECTION APPLIQUÉE ICI ---
-          // Le mot-clé 'const' a été retiré.
           Text(
-            'Tâches à faire (${todoTasks.length})', 
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+            'Tâches à faire (${todoTasks.length})',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -99,12 +95,14 @@ class _TasksScreenState extends State<TasksScreen> {
                   leading: Checkbox(
                     value: task.completed,
                     onChanged: (bool? newValue) {
+                      // Complete task + haptic feedback
                       appState.completeTask(task.id);
+                      try {
+                        HapticFeedback.lightImpact();
+                      } catch (_) {}
                     },
                   ),
-                  title: Text(
-                    task.text,
-                  ),
+                  title: Text(task.text),
                   subtitle: Text(
                     '${task.difficulty.toUpperCase()} | ${task.points} pts ${task.isRecurring ? ' (Répétition)' : ''}',
                   ),

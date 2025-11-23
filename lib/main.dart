@@ -4,21 +4,17 @@ import 'package:provider/provider.dart';
 
 import 'screens/tasks_screen.dart';
 import 'screens/shop_screen.dart';
-import 'models/task.dart';
-import 'models/profile.dart';
 import 'state/app_state.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 
-import 'notifications/notification_helper.dart'; // facultatif si tu ajoutes helper notification
+import 'notifications/notification_helper.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // si tu as un initNotifications global, appelle-le ici (mobile)
-  try {
-    await NotificationHelper.initNotifications();
-  } catch (_) {}
+  // Initialise les notifications (mobile). Ne plante pas sur web.
+  await NotificationHelper.initNotificationsSafe();
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(),
@@ -37,7 +33,7 @@ class GamifiedTodoApp extends StatelessWidget {
     return MaterialApp(
       title: 'Ma To-Do List Gamifiée',
       locale: appState.locale,
-      localizationsDelegates: [
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -74,13 +70,13 @@ class GamifiedTodoApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.grey[50],
       ),
-      home: MainScreen(),
+      home: const MainScreen(),
     );
   }
 }
 
 class MainScreen extends StatefulWidget {
-  MainScreen({super.key});
+  const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -123,8 +119,8 @@ class _MainScreenState extends State<MainScreen> {
                 appState.setLocale(Locale(value));
               }
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'system', child: Text('Système')),
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'system', child: Text('Système')),
               PopupMenuItem(value: 'fr', child: Text('Français')),
               PopupMenuItem(value: 'en', child: Text('English')),
               PopupMenuItem(value: 'de', child: Text('Deutsch')),
@@ -158,4 +154,39 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
           child: BottomNavigationBar(
-            items: <
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.list_alt, size: 28),
+                label: AppLocalizations.of(context)!.tasksTabTitle,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.store, size: 28),
+                label: AppLocalizations.of(context)!.shopTabTitle,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.show_chart, size: 28),
+                label: AppLocalizations.of(context)!.statsTabTitle,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.person, size: 28),
+                label: AppLocalizations.of(context)!.profileTabTitle,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.group, size: 28),
+                label: AppLocalizations.of(context)!.socialTabTitle,
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Theme.of(context).primaryColor,
+            unselectedItemColor: Colors.grey,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            showUnselectedLabels: true,
+          ),
+        ),
+      ),
+    );
+  }
+}

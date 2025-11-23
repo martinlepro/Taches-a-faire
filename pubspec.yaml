@@ -1,5 +1,6 @@
 name: taches_a_faire_main
 description: Une application de To-Do List gamifiée construite en Flutter.
+# Le numéro de version est important pour le déploiement.
 version: 1.0.0+1 
 
 environment:
@@ -9,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   
-  # 🔑 NOUVEAU: Dépendance pour l'internationalisation
+  # 🔑 NOUVEAU: 1. Dépendance pour l'internationalisation
   flutter_localizations: 
     sdk: flutter         
   # ------------------------------------------------
@@ -26,7 +27,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  # 🔑 NOUVEAU: Indique à Flutter de générer le code de localisation
+  # 🔑 NOUVEAU: 2. Indique à Flutter de générer le code de localisation
   generate: true 
   # --------------------------------------------------
 

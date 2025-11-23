@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (CORRECTION DÉFINITIVE AVEC GÉNÉRATION L10N)
+# .github/workflows/main.yml
 
 name: Flutter Web CI/CD
 
@@ -31,23 +31,26 @@ jobs:
       - name: Flutter Pub Get
         run: flutter pub get 
 
-      # 🔑 NOUVELLE ÉTAPE CORRIGÉE: Générer les fichiers de localisation (Vérifiez bien cette indentation)
+      # 1. CORRECTION L10N: Générer les fichiers de localisation
       - name: Generate Localizations Code (l10n)
-        run: flutter gen-l10n # ⬅️ L'erreur était probablement ici, mal indenté ou sans 'run:'
+        run: flutter gen-l10n
       
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
-      # Correction pour le chemin de base (base href)
+      # 2. CORRECTION SYNTAXE YAML: Fix Base Href in index.html
+      # Assurez-vous que la ligne 'run: |' est correctement indentée.
+      # L'anti-slash '\' a été retiré, car le caractère '|' gère la multiligne.
       - name: Fix Base Href in index.html
-        run: |\
+        run: | 
           sed -i 's|</head>|<base href=\"/Taches-a-faire/\">\\n&|' build/web/index.html
+          # La ligne ci-dessus doit être indentée d'exactement 10 espaces (ou 5 tabulations)
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'build/web'
-          name: github-pages # Nom CRUCIAL
+          name: github-pages
           
   deploy:
     environment:

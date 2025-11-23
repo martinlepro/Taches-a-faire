@@ -22,22 +22,18 @@ jobs:
         with:
           channel: 'stable'
 
-      # Assure la plateforme Web (utile si le repo n'a pas été initialisé sur la machine CI)
       - name: Configure Web Platform
         run: flutter create . --platforms web
 
       - name: Flutter Pub Get
         run: flutter pub get
 
-      # Générer le code de localisations (doit être lancé après pub get)
       - name: Generate Localizations Code (l10n)
         run: flutter gen-l10n
 
-      # Debug : lister le dossier l10n pour vérifier que app_localizations.dart a été généré
       - name: Show l10n folder (debug)
         run: ls -la lib/l10n || true
 
-      # Build (workaround pour dart2wasm dry-run)
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/ --no-wasm-dry-run
 

@@ -29,8 +29,13 @@ class GamifiedTodoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+
     return MaterialApp(
       title: 'Ma To-Do List Gamifiée',
+
+      // Utilise la locale stockée dans AppState (null -> système)
+      locale: appState.locale,
       
       // --- CONFIGURATION DE L'INTERNATIONALISATION (i18n) ---
       localizationsDelegates: [ 
@@ -43,6 +48,16 @@ class GamifiedTodoApp extends StatelessWidget {
         Locale('en'), 
         Locale('fr'), 
       ],
+      // Si on veut garder le comportement système en cas d'absence de sélection
+      localeResolutionCallback: (locale, supportedLocales) {
+        if (appState.locale != null) return appState.locale;
+        // sinon laisser Flutter choisir en fonction du device
+        if (locale == null) return supportedLocales.first;
+        for (var supported in supportedLocales) {
+          if (supported.languageCode == locale.languageCode) return supported;
+        }
+        return supportedLocales.first;
+      },
       // ----------------------------------------------------
       
       theme: ThemeData(
@@ -91,6 +106,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     // 🔑 Obtient les chaînes localisées une seule fois
     final localizations = AppLocalizations.of(context)!;
     
@@ -98,6 +114,25 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: Text(localizations.appTitle), // titre localisé
         elevation: 0,
+        actions: [
+          // Bouton pour changer la langue
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language),
+            tooltip: 'Changer de langue',
+            onSelected: (value) {
+              if (value == 'system') {
+                appState.clearLocale(); // retourne au système
+              } else {
+                appState.setLocale(Locale(value));
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'system', child: Text('Système')),
+              PopupMenuItem(value: 'fr', child: Text('Français')),
+              PopupMenuItem(value: 'en', child: Text('English')),
+            ],
+          ),
+        ],
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

@@ -1,4 +1,4 @@
-# .github/workflows/main.yml
+# .github/workflows/main.yml (CORRIGÉ : Ordre et dépendances L10N)
 
 name: Flutter Web CI/CD
 
@@ -23,28 +23,30 @@ jobs:
           channel: 'stable'
           
       # ----------------------------------------------------
-      # ÉTAPE NÉCESSAIRE : Configuration de la plateforme Web
+      # 🔑 ÉTAPE CRUCIALE 1 : Configuration et dépendances
       # ----------------------------------------------------
       - name: Configure Web Platform
-        run: flutter create . --platforms web
+        # Nécessaire pour initialiser les dossiers web (si non présents)
+        run: flutter create . --platforms web 
         
-      - name: Flutter Pub Get
+      - name: Flutter Pub Get (TÉLÉCHARGEMENT DES DÉPENDANCES, Y COMPRIS L10N)
+        # Ceci installe les dépendances listées dans pubspec.yaml
         run: flutter pub get 
 
-      # 1. CORRECTION L10N: Générer les fichiers de localisation
+      # 🔑 ÉTAPE CRUCIALE 2 : Générer les fichiers de localisation (L10N)
+      # Doit être exécuté APRÈS pub get et AVANT le build
       - name: Generate Localizations Code (l10n)
         run: flutter gen-l10n
       
+      # ----------------------------------------------------
+      # ÉTAPES DE BUILD ET D'ARTEFACT
+      # ----------------------------------------------------
       - name: Flutter Build Web
         run: flutter build web --release --base-href /Taches-a-faire/
 
-      # 2. CORRECTION SYNTAXE YAML: Fix Base Href in index.html
-      # Assurez-vous que la ligne 'run: |' est correctement indentée.
-      # L'anti-slash '\' a été retiré, car le caractère '|' gère la multiligne.
       - name: Fix Base Href in index.html
-        run: | 
-          sed -i 's|</head>|<base href=\"/Taches-a-faire/\">\\n&|' build/web/index.html
-          # La ligne ci-dessus doit être indentée d'exactement 10 espaces (ou 5 tabulations)
+        # Cette commande est maintenant bien plus stable.
+        run: sed -i 's|</head>|<base href=\"/Taches-a-faire/\">\\n&|' build/web/index.html
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3

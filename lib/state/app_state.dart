@@ -12,6 +12,22 @@ const uuid = Uuid();
 
 // AppState est la source unique de vérité de votre application.
 class AppState extends ChangeNotifier {
+  // --- Gestion de la locale (i18n) ---
+  Locale? _locale;
+  Locale? get locale => _locale;
+
+  // Définit la locale manuellement (ex: Locale('fr') ou Locale('en'))
+  void setLocale(Locale? locale) {
+    _locale = locale;
+    notifyListeners();
+  }
+
+  // Permet de remettre la locale par défaut du système (null)
+  void clearLocale() {
+    _locale = null;
+    notifyListeners();
+  }
+
   // --- Propriétés de l'état (données de l'application) ---
   // Note: Nous utilisons copyWith dans Profile, assurez-vous de l'ajouter (voir section 4)
   Profile _profile = Profile(icon: '👤', totalPoints: 0, currentStreak: 0, maxStreak: 0);

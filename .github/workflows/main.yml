@@ -1,5 +1,3 @@
-# .github/workflows/main.yml (CORRIGÉ : Ordre et dépendances L10N + workaround wasm dry-run)
-
 name: Flutter Web CI/CD
 
 on:
@@ -10,61 +8,54 @@ on:
 
 permissions:
   contents: read
-  pages: write 
-  id-token: write 
+  pages: write
+  id-token: write
 
 jobs:
-  build: 
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          
-      # ----------------------------------------------------
-      # 🔑 ÉTAPE CRUCIALE 1 : Configuration et dépendances
-      # ----------------------------------------------------
-      - name: Configure Web Platform
-        # Nécessaire pour initialiser les dossiers web (si non présents)
-        run: flutter create . --platforms web 
-        
-      - name: Flutter Pub Get (TÉLÉCHARGEMENT DES DÉPENDANCES, Y COMPRIS L10N)
-        # Ceci installe les dépendances listées dans pubspec.yaml
-        run: flutter pub get 
 
-      # 🔑 ÉTAPE CRUCIALE 2 : Générer les fichiers de localisation (L10N)
-      # Doit être exécuté APRÈS pub get et AVANT le build
+      # Assure la plateforme Web (utile si le repo n'a pas été initialisé sur la machine CI)
+      - name: Configure Web Platform
+        run: flutter create . --platforms web
+
+      - name: Flutter Pub Get
+        run: flutter pub get
+
+      # Générer le code de localisations (doit être lancé après pub get)
       - name: Generate Localizations Code (l10n)
         run: flutter gen-l10n
 
-      # Debug : montre le contenu du dossier l10n pour diagnostiquer facilement
+      # Debug : lister le dossier l10n pour vérifier que app_localizations.dart a été généré
       - name: Show l10n folder (debug)
         run: ls -la lib/l10n || true
-      
-      # ----------------------------------------------------
-      # ÉTAPES DE BUILD ET D'ARTEFACT
-      # ----------------------------------------------------
+
+      # Build (workaround pour dart2wasm dry-run)
       - name: Flutter Build Web
-        # WORKAROUND : ajouter --no-wasm-dry-run pour éviter l'exception dart2wasm dry run
         run: flutter build web --release --base-href /Taches-a-faire/ --no-wasm-dry-run
 
       - name: Fix Base Href in index.html
-        # Cette commande est maintenant bien plus stable.
-        run: sed -i 's|</head>|<base href=\"/Taches-a-faire/\">\\n&|' build/web/index.html
+        run: sed -i 's|</head>|<base href="/Taches-a-faire/">\\n&|' build/web/index.html
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'build/web'
           name: github-pages
-          
+
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build 
+    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

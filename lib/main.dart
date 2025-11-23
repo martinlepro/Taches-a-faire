@@ -11,8 +11,7 @@ import 'state/app_state.dart';
 
 // 🔑 Imports pour l'internationalisation
 import 'package:flutter_localizations/flutter_localizations.dart'; 
-// IMPORT PROPOSÉ : importer le fichier généré directement depuis lib/l10n
-// (le fichier est généré par `flutter gen-l10n` et se trouve normalement dans lib/l10n/app_localizations.dart)
+// IMPORT : fichier généré par flutter gen-l10n (dans lib/l10n/)
 import 'l10n/app_localizations.dart'; // Fichier généré par flutter gen-l10n
 
 void main() {
@@ -67,7 +66,6 @@ class GamifiedTodoApp extends StatelessWidget {
 // Écran Principal (Gère la Navigation par Onglets)
 // ==============================================
 class MainScreen extends StatefulWidget {
-  // ⬅️ CORRECTION : Suppression du mot-clé 'const' ici si nécessaire
   MainScreen({super.key}); 
 
   @override
@@ -98,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(localizations.appTitle), // 🔑 Utilisation du titre localisé
+        title: Text(localizations.appTitle), // titre localisé
         elevation: 0,
       ),
       body: Center(
@@ -120,27 +118,27 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
           child: BottomNavigationBar(
-            // 🔑 Utilisation des chaînes localisées pour les étiquettes
+            // Utilisation des getters générés par les .arb (ex: tasksTabTitle)
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
                 icon: const Icon(Icons.list_alt, size: 28),
-                label: localizations.tasks, 
+                label: localizations.tasksTabTitle, 
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.store, size: 28),
-                label: localizations.shop, 
+                label: localizations.shopTabTitle, 
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.show_chart, size: 28),
-                label: localizations.stats,
+                label: localizations.statsTabTitle,
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.person, size: 28),
-                label: localizations.profile,
+                label: localizations.profileTabTitle,
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.group, size: 28),
-                label: localizations.social,
+                label: localizations.socialTabTitle,
               ),
             ],
             currentIndex: _selectedIndex,

@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (CORRIGÉ : Ordre et dépendances L10N)
+# .github/workflows/main.yml (CORRIGÉ : Ordre et dépendances L10N + workaround wasm dry-run)
 
 name: Flutter Web CI/CD
 
@@ -37,12 +37,17 @@ jobs:
       # Doit être exécuté APRÈS pub get et AVANT le build
       - name: Generate Localizations Code (l10n)
         run: flutter gen-l10n
+
+      # Debug : montre le contenu du dossier l10n pour diagnostiquer facilement
+      - name: Show l10n folder (debug)
+        run: ls -la lib/l10n || true
       
       # ----------------------------------------------------
       # ÉTAPES DE BUILD ET D'ARTEFACT
       # ----------------------------------------------------
       - name: Flutter Build Web
-        run: flutter build web --release --base-href /Taches-a-faire/
+        # WORKAROUND : ajouter --no-wasm-dry-run pour éviter l'exception dart2wasm dry run
+        run: flutter build web --release --base-href /Taches-a-faire/ --no-wasm-dry-run
 
       - name: Fix Base Href in index.html
         # Cette commande est maintenant bien plus stable.

@@ -53,8 +53,8 @@ class NotificationHelper {
               channelDescription: 'Rappels quotidiens', importance: Importance.max, priority: Priority.high),
           iOS: DarwinNotificationDetails(),
         ),
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        // androidAllowWhileIdle: true,        // <-- SUPPRIMÉ !
+        uiLocalNotificationDateInterpretation: DateTimeInterpretation.absoluteTime, // <-- CORRIGÉ !
         matchDateTimeComponents: DateTimeComponents.time,
       );
     } catch (_) {}

@@ -38,7 +38,7 @@ jobs:
         run: flutter build web --release --base-href /Taches-a-faire/ --no-wasm-dry-run
 
       - name: Fix Base Href in index.html
-        run: sed -i 's|</head>|<base href="/Taches-a-faire/">\\n&|' build/web/index.html
+        run: sed -i 's|</head>|<base href="/Taches-a-faire/">\n&|' build/web/index.html
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3

@@ -13,7 +13,7 @@ class NotificationHelper {
 
   static Future<void> initNotificationsSafe() async {
     try {
-      if (kIsWeb) return;
+      if (kIsWeb) return; // NE RIEN FAIRE SUR LE WEB
     } catch (_) {}
     try {
       await initNotifications();
@@ -21,6 +21,7 @@ class NotificationHelper {
   }
 
   static Future<void> initNotifications() async {
+    // Cette méthode ne doit être appelée que sur mobile (initNotificationsSafe le garantit)
     tzdata.initializeTimeZones();
     final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
@@ -38,29 +39,36 @@ class NotificationHelper {
   }
 
   static Future<void> scheduleDaily(int id, String title, String body, int hour, int minute) async {
+    if (kIsWeb) return; // NE PAS SCHEDULER SUR LE WEB
     try {
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       tz.TZDateTime scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
       if (scheduled.isBefore(now)) scheduled = scheduled.add(const Duration(days: 1));
 
+      // NOTE : n'utilise pas de paramètres non supportés par certaines versions / web.
       await _plugin.zonedSchedule(
         id,
         title,
         body,
         scheduled,
         NotificationDetails(
-          android: AndroidNotificationDetails('daily_channel', 'Daily reminders',
-              channelDescription: 'Rappels quotidiens', importance: Importance.max, priority: Priority.high),
+          android: AndroidNotificationDetails(
+            'daily_channel',
+            'Daily reminders',
+            channelDescription: 'Rappels quotidiens',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
           iOS: DarwinNotificationDetails(),
         ),
-        // androidAllowWhileIdle: true,        // <-- SUPPRIMÉ !
-        uiLocalNotificationDateInterpretation: DateTimeInterpretation.absoluteTime, // <-- CORRIGÉ !
+        // On ne fournit PAS androidAllowWhileIdle ni uiLocalNotificationDateInterpretation ici.
         matchDateTimeComponents: DateTimeComponents.time,
       );
     } catch (_) {}
   }
 
   static Future<void> cancel(int id) async {
+    if (kIsWeb) return; // Rien à faire sur le web
     try {
       await _plugin.cancel(id);
     } catch (_) {}

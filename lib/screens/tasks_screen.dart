@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../models/task.dart';
 import '../state/app_state.dart';
+import '../l10n/app_localizations.dart'; // IMPORT LOCALIZATIONS
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -22,14 +23,16 @@ class _TasksScreenState extends State<TasksScreen> {
     final appState = Provider.of<AppState>(context);
     final tasks = appState.tasks;
     final todoTasks = tasks.where((t) => !t.completed).toList();
+    final loc = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Title from localization
           Text(
-            'Ajouter une nouvelle tâche',
+            loc.addTaskTitle,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
@@ -39,7 +42,7 @@ class _TasksScreenState extends State<TasksScreen> {
                 child: TextField(
                   controller: _taskController,
                   decoration: InputDecoration(
-                    hintText: 'Ajouter une nouvelle tâche...',
+                    hintText: loc.addHint,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
@@ -47,10 +50,10 @@ class _TasksScreenState extends State<TasksScreen> {
               const SizedBox(width: 8),
               DropdownButton<String>(
                 value: _selectedDifficulty,
-                items: const [
-                  DropdownMenuItem(value: 'easy', child: Text('Facile (+1)')),
-                  DropdownMenuItem(value: 'medium', child: Text('Moyen (+3)')),
-                  DropdownMenuItem(value: 'hard', child: Text('Difficile (+5)')),
+                items: [
+                  DropdownMenuItem(value: 'easy', child: Text(loc.difficultyEasyLabel)),
+                  DropdownMenuItem(value: 'medium', child: Text(loc.difficultyMediumLabel)),
+                  DropdownMenuItem(value: 'hard', child: Text(loc.difficultyHardLabel)),
                 ],
                 onChanged: (String? newValue) {
                   if (newValue != null) {
@@ -77,8 +80,9 @@ class _TasksScreenState extends State<TasksScreen> {
             ],
           ),
           const SizedBox(height: 20),
+          // Header localized + count
           Text(
-            'Tâches à faire (${todoTasks.length})',
+            '${loc.todoListHeader} (${todoTasks.length})',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
@@ -104,7 +108,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   title: Text(task.text),
                   subtitle: Text(
-                    '${task.difficulty.toUpperCase()} | ${task.points} pts ${task.isRecurring ? ' (Répétition)' : ''}',
+                    '${task.difficulty.toUpperCase()} | ${task.points} ${loc.pointsShort} ${task.isRecurring ? ' (${loc.recurring})' : ''}',
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),

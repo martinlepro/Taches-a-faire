@@ -1,12 +1,29 @@
 {
   "@@locale": "ja",
-  "appTitle": "ゲーミフィケーションされたTo-Doリスト",
+  "appTitle": "ゲーミフィケーション To-Do リスト",
   "tasksTabTitle": "タスク",
   "shopTabTitle": "ショップ",
   "statsTabTitle": "統計",
   "profileTabTitle": "プロフィール",
   "socialTabTitle": "ソーシャル",
+
   "addTaskTitle": "新しいタスクを追加",
-  "todoListTitle": "やること ({count})",
-  "addHint": "新しいタスクを追加..."
+  "addHint": "新しいタスクを追加...",
+  "todoListHeader": "やることリスト",
+  "pointsShort": "ポイント",
+  "recurring": "繰り返し",
+
+  "difficultyEasyLabel": "簡単 (+1)",
+  "difficultyMediumLabel": "中 (+3)",
+  "difficultyHardLabel": "難しい (+5)",
+
+  "shopTitle": "ショップ",
+  "shopSubtitle": "ポイントを報酬や見た目に使いましょう！",
+  "currentBalance": "現在の残高",
+  "purchaseSuccess": "購入に成功しました！",
+  "insufficientPoints": "ポイントが不足しています。",
+  "shopItemStar": "新しいアイコン（星）",
+  "shopItemTheme": "テーマを変更",
+  "shopItemX2": "ボーナスポイント x2（1日）",
+  "shopItemErase": "面倒なタスクを1つ消す"
 }

@@ -1,12 +1,29 @@
 {
   "@@locale": "zh",
-  "appTitle": "ゲーミフィケーションされたTo-Doリスト",
-  "tasksTabTitle": "タスク",
-  "shopTabTitle": "ショップ",
-  "statsTabTitle": "統計",
-  "profileTabTitle": "プロフィール",
-  "socialTabTitle": "ソーシャル",
-  "addTaskTitle": "新しいタスクを追加",
-  "todoListTitle": "やること ({count})",
-  "addHint": "新しいタスクを追加..."
+  "appTitle": "游戏化待办清单",
+  "tasksTabTitle": "任务",
+  "shopTabTitle": "商店",
+  "statsTabTitle": "统计",
+  "profileTabTitle": "个人资料",
+  "socialTabTitle": "社交",
+
+  "addTaskTitle": "添加新任务",
+  "addHint": "添加新任务...",
+  "todoListHeader": "待办任务",
+  "pointsShort": "分",
+  "recurring": "重复",
+
+  "difficultyEasyLabel": "简单 (+1)",
+  "difficultyMediumLabel": "中等 (+3)",
+  "difficultyHardLabel": "困难 (+5)",
+
+  "shopTitle": "商店",
+  "shopSubtitle": "使用你的积分兑换奖励和外观！",
+  "currentBalance": "你的当前余额",
+  "purchaseSuccess": "购买成功！",
+  "insufficientPoints": "积分不足。",
+  "shopItemStar": "新图标（星星）",
+  "shopItemTheme": "更改主题",
+  "shopItemX2": "积分加倍 x2（1 天）",
+  "shopItemErase": "删除 1 个烦人的任务"
 }

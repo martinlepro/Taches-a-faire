@@ -1,12 +1,29 @@
 {
   "@@locale": "ru",
-  "appTitle": "Геймифицированный Список Дел",
+  "appTitle": "Геймифицированный список дел",
   "tasksTabTitle": "Задачи",
   "shopTabTitle": "Магазин",
   "statsTabTitle": "Статистика",
   "profileTabTitle": "Профиль",
-  "socialTabTitle": "Соцсеть",
+  "socialTabTitle": "Социальное",
+
   "addTaskTitle": "Добавить новую задачу",
-  "todoListTitle": "Задачи ({count})",
-  "addHint": "Добавьте новую задачу..."
+  "addHint": "Добавьте новую задачу...",
+  "todoListHeader": "Задачи на выполнение",
+  "pointsShort": "балл",
+  "recurring": "Повторяющаяся",
+
+  "difficultyEasyLabel": "Легко (+1)",
+  "difficultyMediumLabel": "Средне (+3)",
+  "difficultyHardLabel": "Сложно (+5)",
+
+  "shopTitle": "Магазин",
+  "shopSubtitle": "Тратьте свои очки на награды и косметику!",
+  "currentBalance": "Ваш текущий баланс",
+  "purchaseSuccess": "Покупка успешна!",
+  "insufficientPoints": "Недостаточно очков.",
+  "shopItemStar": "Новая иконка (Звезда)",
+  "shopItemTheme": "Сменить тему",
+  "shopItemX2": "Бонус очков x2 (1 день)",
+  "shopItemErase": "Удалить 1 надоедливую задачу"
 }

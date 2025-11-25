@@ -1,12 +1,29 @@
 {
-    "@@locale": "pt",
-    "appTitle": "Lista de Tarefas Gamificada",
-    "tasksTabTitle": "Tarefas",
-    "shopTabTitle": "Loja",
-    "statsTabTitle": "Estatísticas",
-    "profileTabTitle": "Perfil",
-    "socialTabTitle": "Social",
-    "addTaskTitle": "Adicionar nova tarefa",
-    "todoListTitle": "Tarefas a fazer ({count})",
-    "addHint": "Adicionar nova tarefa..."
+  "@@locale": "pt",
+  "appTitle": "Lista de Tarefas Gamificada",
+  "tasksTabTitle": "Tarefas",
+  "shopTabTitle": "Loja",
+  "statsTabTitle": "Estatísticas",
+  "profileTabTitle": "Perfil",
+  "socialTabTitle": "Social",
+
+  "addTaskTitle": "Adicionar uma nova tarefa",
+  "addHint": "Adicionar uma nova tarefa...",
+  "todoListHeader": "Tarefas a fazer",
+  "pointsShort": "pts",
+  "recurring": "Recorrente",
+
+  "difficultyEasyLabel": "Fácil (+1)",
+  "difficultyMediumLabel": "Médio (+3)",
+  "difficultyHardLabel": "Difícil (+5)",
+
+  "shopTitle": "Loja",
+  "shopSubtitle": "Gaste seus pontos em recompensas e cosméticos!",
+  "currentBalance": "Seu saldo atual",
+  "purchaseSuccess": "Compra bem-sucedida!",
+  "insufficientPoints": "Pontos insuficientes.",
+  "shopItemStar": "Novo Ícone (Estrela)",
+  "shopItemTheme": "Mudar Tema",
+  "shopItemX2": "Bônus Pontos x2 (1 dia)",
+  "shopItemErase": "Apagar 1 Tarefa Irritante"
 }

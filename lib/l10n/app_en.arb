@@ -1,12 +1,29 @@
 {
-    "@@locale": "en",
-    "appTitle": "Gamified To-Do List",
-    "tasksTabTitle": "Tasks",
-    "shopTabTitle": "Shop",
-    "statsTabTitle": "Stats",
-    "profileTabTitle": "Profile",
-    "socialTabTitle": "Social",
-    "addTaskTitle": "Add a new task",
-    "todoListTitle": "Tasks to do ({count})",
-    "addHint": "Add a new task..."
+  "@@locale": "en",
+  "appTitle": "Gamified To-Do List",
+  "tasksTabTitle": "Tasks",
+  "shopTabTitle": "Shop",
+  "statsTabTitle": "Stats",
+  "profileTabTitle": "Profile",
+  "socialTabTitle": "Social",
+
+  "addTaskTitle": "Add a new task",
+  "addHint": "Add a new task...",
+  "todoListHeader": "Tasks to do",
+  "pointsShort": "pts",
+  "recurring": "Recurring",
+
+  "difficultyEasyLabel": "Easy (+1)",
+  "difficultyMediumLabel": "Medium (+3)",
+  "difficultyHardLabel": "Hard (+5)",
+
+  "shopTitle": "Shop",
+  "shopSubtitle": "Spend your points on rewards and cosmetics!",
+  "currentBalance": "Your current balance",
+  "purchaseSuccess": "Purchase successful!",
+  "insufficientPoints": "Insufficient points.",
+  "shopItemStar": "New Icon (Star)",
+  "shopItemTheme": "Change Theme",
+  "shopItemX2": "Bonus Points x2 (1 day)",
+  "shopItemErase": "Erase 1 Annoying Task"
 }

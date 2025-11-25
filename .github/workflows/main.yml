@@ -1,3 +1,5 @@
+# .github/workflows/main.yml (VERSION OPTIMISÉE POUR L10N)
+
 name: Flutter Web CI/CD
 
 on:
@@ -8,50 +10,49 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  pages: write 
+  id-token: write 
 
 jobs:
-  build:
+  build: 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
-      - name: Configure Web Platform
-        run: flutter create . --platforms web
-
-      - name: Flutter Pub Get
-        run: flutter pub get
-
-      - name: Generate Localizations Code (l10n)
-        run: flutter gen-l10n
-
-      - name: Show l10n folder (debug)
-        run: ls -la lib/l10n || true
-
+          
+      # ----------------------------------------------------
+      # 🔑 ÉTAPE CRUCIALE : Pub Get (déclenche la génération L10N)
+      # ----------------------------------------------------
+      - name: Flutter Pub Get & Generate Localizations
+        # 'pub get' va lire pubspec.yaml (où 'generate: true' est défini)
+        # et déclencher la création de AppLocalizations.dart.
+        run: flutter pub get 
+      
+      # ----------------------------------------------------
+      # ÉTAPES DE BUILD ET D'ARTEFACT
+      # ----------------------------------------------------
       - name: Flutter Build Web
-        run: flutter build web --release --base-href /Taches-a-faire/ --no-wasm-dry-run
+        # Maintenant, les fichiers de localisation sont garantis d'être là.
+        run: flutter build web --release --base-href /Taches-a-faire/
 
+      # Ligne 43 (ou proche) : Fix Base Href in index.html
       - name: Fix Base Href in index.html
-        run: sed -i 's|</head>|<base href="/Taches-a-faire/">\n&|' build/web/index.html
+        run: sed -i 's|</head>|<base href=\"/Taches-a-faire/\">\\n&|' build/web/index.html
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'build/web'
           name: github-pages
-
+          
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: build 
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

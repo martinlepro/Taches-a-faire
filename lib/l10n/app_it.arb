@@ -1,12 +1,29 @@
 {
-    "@@locale": "it",
-    "appTitle": "Lista di Cose da Fare Gamificata",
-    "tasksTabTitle": "Compiti",
-    "shopTabTitle": "Negozio",
-    "statsTabTitle": "Statistiche",
-    "profileTabTitle": "Profilo",
-    "socialTabTitle": "Sociale",
-    "addTaskTitle": "Aggiungi un nuovo compito",
-    "todoListTitle": "Compiti da fare ({count})",
-    "addHint": "Aggiungi un nuovo compito..."
+  "@@locale": "it",
+  "appTitle": "Lista di Cose da Fare Gamificata",
+  "tasksTabTitle": "Compiti",
+  "shopTabTitle": "Negozio",
+  "statsTabTitle": "Statistiche",
+  "profileTabTitle": "Profilo",
+  "socialTabTitle": "Sociale",
+
+  "addTaskTitle": "Aggiungi un nuovo compito",
+  "addHint": "Aggiungi un nuovo compito...",
+  "todoListHeader": "Compiti da fare",
+  "pointsShort": "pts",
+  "recurring": "Ricorrente",
+
+  "difficultyEasyLabel": "Facile (+1)",
+  "difficultyMediumLabel": "Medio (+3)",
+  "difficultyHardLabel": "Difficile (+5)",
+
+  "shopTitle": "Negozio",
+  "shopSubtitle": "Spendi i tuoi punti per ricompense e cosmetici!",
+  "currentBalance": "Il tuo saldo attuale",
+  "purchaseSuccess": "Acquisto effettuato!",
+  "insufficientPoints": "Punti insufficienti.",
+  "shopItemStar": "Nuova Icona (Stella)",
+  "shopItemTheme": "Cambia Tema",
+  "shopItemX2": "Bonus Punti x2 (1 giorno)",
+  "shopItemErase": "Elimina 1 Compito Fastidioso"
 }

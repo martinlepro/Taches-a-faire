@@ -1,12 +1,29 @@
 {
-    "@@locale": "es",
-    "appTitle": "Lista de Tareas Gamificada",
-    "tasksTabTitle": "Tareas",
-    "shopTabTitle": "Tienda",
-    "statsTabTitle": "Estadísticas",
-    "profileTabTitle": "Perfil",
-    "socialTabTitle": "Social",
-    "addTaskTitle": "Añadir una nueva tarea",
-    "todoListTitle": "Tareas por hacer ({count})",
-    "addHint": "Añadir una nueva tarea..."
+  "@@locale": "es",
+  "appTitle": "Lista de Tareas Gamificada",
+  "tasksTabTitle": "Tareas",
+  "shopTabTitle": "Tienda",
+  "statsTabTitle": "Estadísticas",
+  "profileTabTitle": "Perfil",
+  "socialTabTitle": "Social",
+
+  "addTaskTitle": "Añadir una nueva tarea",
+  "addHint": "Añadir una nueva tarea...",
+  "todoListHeader": "Tareas por hacer",
+  "pointsShort": "pts",
+  "recurring": "Recurrente",
+
+  "difficultyEasyLabel": "Fácil (+1)",
+  "difficultyMediumLabel": "Medio (+3)",
+  "difficultyHardLabel": "Difícil (+5)",
+
+  "shopTitle": "Tienda",
+  "shopSubtitle": "¡Gasta tus puntos en recompensas y cosméticos!",
+  "currentBalance": "Tu saldo actual",
+  "purchaseSuccess": "¡Compra realizada!",
+  "insufficientPoints": "Puntos insuficientes.",
+  "shopItemStar": "Nuevo Icono (Estrella)",
+  "shopItemTheme": "Cambiar Tema",
+  "shopItemX2": "Bonus Puntos x2 (1 día)",
+  "shopItemErase": "Borrar 1 Tarea Molesta"
 }

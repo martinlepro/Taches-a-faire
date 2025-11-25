@@ -1,12 +1,29 @@
 {
-    "@@locale": "fr",
-    "appTitle": "Liste de Tâches Gamifiée",
-    "tasksTabTitle": "Tâches",
-    "shopTabTitle": "Boutique",
-    "statsTabTitle": "Stats",
-    "profileTabTitle": "Profil",
-    "socialTabTitle": "Social",
-    "addTaskTitle": "Ajouter une nouvelle tâche",
-    "todoListTitle": "Tâches à faire ({count})",
-    "addHint": "Ajouter une nouvelle tâche..."
+  "@@locale": "fr",
+  "appTitle": "Liste de Tâches Gamifiée",
+  "tasksTabTitle": "Tâches",
+  "shopTabTitle": "Boutique",
+  "statsTabTitle": "Stats",
+  "profileTabTitle": "Profil",
+  "socialTabTitle": "Social",
+
+  "addTaskTitle": "Ajouter une nouvelle tâche",
+  "addHint": "Ajouter une nouvelle tâche...",
+  "todoListHeader": "Tâches à faire",
+  "pointsShort": "pts",
+  "recurring": "Répétition",
+
+  "difficultyEasyLabel": "Facile (+1)",
+  "difficultyMediumLabel": "Moyen (+3)",
+  "difficultyHardLabel": "Difficile (+5)",
+
+  "shopTitle": "Boutique",
+  "shopSubtitle": "Dépensez vos points pour des récompenses et des cosmétiques !",
+  "currentBalance": "Votre Solde Actuel",
+  "purchaseSuccess": "Achat réussi !",
+  "insufficientPoints": "Points insuffisants.",
+  "shopItemStar": "Nouvelle Icône (Étoile)",
+  "shopItemTheme": "Changer de Thème",
+  "shopItemX2": "Bonus Points x2 (1 jour)",
+  "shopItemErase": "Effacer 1 Tâche Pénible"
 }

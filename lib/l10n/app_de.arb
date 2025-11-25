@@ -1,12 +1,29 @@
 {
-    "@@locale": "de",
-    "appTitle": "Gamifizierte To-Do-Liste",
-    "tasksTabTitle": "Aufgaben",
-    "shopTabTitle": "Shop",
-    "statsTabTitle": "Statistiken",
-    "profileTabTitle": "Profil",
-    "socialTabTitle": "Sozial",
-    "addTaskTitle": "Neue Aufgabe hinzufügen",
-    "todoListTitle": "Zu erledigende Aufgaben ({count})",
-    "addHint": "Neue Aufgabe hinzufügen..."
+  "@@locale": "de",
+  "appTitle": "Gamifizierte To-Do-Liste",
+  "tasksTabTitle": "Aufgaben",
+  "shopTabTitle": "Shop",
+  "statsTabTitle": "Statistiken",
+  "profileTabTitle": "Profil",
+  "socialTabTitle": "Sozial",
+
+  "addTaskTitle": "Neue Aufgabe hinzufügen",
+  "addHint": "Neue Aufgabe hinzufügen...",
+  "todoListHeader": "Aufgaben",
+  "pointsShort": "Pkt",
+  "recurring": "Wiederkehrend",
+
+  "difficultyEasyLabel": "Leicht (+1)",
+  "difficultyMediumLabel": "Mittel (+3)",
+  "difficultyHardLabel": "Schwer (+5)",
+
+  "shopTitle": "Shop",
+  "shopSubtitle": "Gib deine Punkte für Belohnungen und Kosmetik aus!",
+  "currentBalance": "Dein aktuelles Guthaben",
+  "purchaseSuccess": "Kauf erfolgreich!",
+  "insufficientPoints": "Nicht genügend Punkte.",
+  "shopItemStar": "Neues Icon (Stern)",
+  "shopItemTheme": "Thema ändern",
+  "shopItemX2": "Bonuspunkte x2 (1 Tag)",
+  "shopItemErase": "Lösche 1 nervige Aufgabe"
 }

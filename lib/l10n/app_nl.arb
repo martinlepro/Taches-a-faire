@@ -1,12 +1,29 @@
 {
-    "@@locale": "nl",
-    "appTitle": "Gamified Takenlijst",
-    "tasksTabTitle": "Taken",
-    "shopTabTitle": "Winkel",
-    "statsTabTitle": "Statistieken",
-    "profileTabTitle": "Profiel",
-    "socialTabTitle": "Sociaal",
-    "addTaskTitle": "Nieuwe taak toevoegen",
-    "todoListTitle": "Te doen taken ({count})",
-    "addHint": "Nieuwe taak toevoegen..."
+  "@@locale": "nl",
+  "appTitle": "Gamified To-Do Lijst",
+  "tasksTabTitle": "Taken",
+  "shopTabTitle": "Winkel",
+  "statsTabTitle": "Statistieken",
+  "profileTabTitle": "Profiel",
+  "socialTabTitle": "Sociaal",
+
+  "addTaskTitle": "Nieuwe taak toevoegen",
+  "addHint": "Nieuwe taak toevoegen...",
+  "todoListHeader": "Taken om te doen",
+  "pointsShort": "pts",
+  "recurring": "Terugkerend",
+
+  "difficultyEasyLabel": "Makkelijk (+1)",
+  "difficultyMediumLabel": "Gemiddeld (+3)",
+  "difficultyHardLabel": "Moeilijk (+5)",
+
+  "shopTitle": "Winkel",
+  "shopSubtitle": "Besteed je punten aan beloningen en cosmetica!",
+  "currentBalance": "Je huidige saldo",
+  "purchaseSuccess": "Aankoop geslaagd!",
+  "insufficientPoints": "Onvoldoende punten.",
+  "shopItemStar": "Nieuw pictogram (Ster)",
+  "shopItemTheme": "Thema wijzigen",
+  "shopItemX2": "Bonuspunten x2 (1 dag)",
+  "shopItemErase": "Verwijder 1 vervelende taak"
 }

@@ -6,7 +6,8 @@ import 'screens/tasks_screen.dart';
 import 'screens/shop_screen.dart';
 import 'state/app_state.dart';
 
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Fichier généré
 import 'l10n/app_localizations.dart';
 
 import 'notifications/notification_helper.dart';

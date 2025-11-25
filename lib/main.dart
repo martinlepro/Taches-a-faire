@@ -4,17 +4,16 @@ import 'package:provider/provider.dart';
 
 import 'screens/tasks_screen.dart';
 import 'screens/shop_screen.dart';
+import 'screens/stats_screen.dart'; // <-- import ajouté
 import 'state/app_state.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
-// IMPORT RELATIF VERS LE FICHIER GÉNÉRÉ (généré dans lib/l10n/)
 import 'l10n/app_localizations.dart';
 
 import 'notifications/notification_helper.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialise les notifications (mobile). Ne plante pas sur web.
   await NotificationHelper.initNotificationsSafe();
   runApp(
     ChangeNotifierProvider(
@@ -89,7 +88,7 @@ class _MainScreenState extends State<MainScreen> {
   static final List<Widget> _widgetOptions = <Widget>[
     const TasksScreen(),
     const ShopScreen(),
-    const Text('Stats Screen Placeholder'),
+    const StatsScreen(), // <-- StatsScreen remplace le placeholder
     const Text('Profile Screen Placeholder'),
     const Text('Social Screen Placeholder'),
   ];

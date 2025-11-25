@@ -13,7 +13,7 @@ class NotificationHelper {
 
   static Future<void> initNotificationsSafe() async {
     try {
-      if (kIsWeb) return; // NE RIEN FAIRE SUR LE WEB
+      if (kIsWeb) return; // Ne rien faire sur le web
     } catch (_) {}
     try {
       await initNotifications();
@@ -21,7 +21,7 @@ class NotificationHelper {
   }
 
   static Future<void> initNotifications() async {
-    // Cette méthode ne doit être appelée que sur mobile (initNotificationsSafe le garantit)
+    // Cette méthode doit être appelée uniquement sur mobile (initNotificationsSafe le garantit)
     tzdata.initializeTimeZones();
     final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
@@ -39,13 +39,13 @@ class NotificationHelper {
   }
 
   static Future<void> scheduleDaily(int id, String title, String body, int hour, int minute) async {
-    if (kIsWeb) return; // NE PAS SCHEDULER SUR LE WEB
+    if (kIsWeb) return; // Ne pas scheduler sur le web
+
     try {
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       tz.TZDateTime scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
       if (scheduled.isBefore(now)) scheduled = scheduled.add(const Duration(days: 1));
 
-      // NOTE : n'utilise pas de paramètres non supportés par certaines versions / web.
       await _plugin.zonedSchedule(
         id,
         title,
@@ -61,7 +61,9 @@ class NotificationHelper {
           ),
           iOS: DarwinNotificationDetails(),
         ),
-        // On ne fournit PAS androidAllowWhileIdle ni uiLocalNotificationDateInterpretation ici.
+        // Paramètre requis depuis les versions récentes du plugin
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        // On ne fournit pas d'autres paramètres spécifiques non nécessaires pour la compilation web
         matchDateTimeComponents: DateTimeComponents.time,
       );
     } catch (_) {}

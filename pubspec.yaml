@@ -20,7 +20,7 @@ dependencies:
   timezone: ^0.10.0
   flutter_native_timezone: ^2.0.0
 
-  fl_chart: ^0.60.0   # <-- Graph library ajoutée
+  fl_chart: ^0.64.0   # <-- Graph library ajoutée
 
 dev_dependencies:
   flutter_test:

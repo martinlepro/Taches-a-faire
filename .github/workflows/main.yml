@@ -1,5 +1,6 @@
 name: Flutter Web CI/CD
 
+
 on:
   push:
     branches:
@@ -22,32 +23,28 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Ensure web platform exists (create only if missing)
-        run: |
-          if [ -d web ]; then
-            echo "web/ already exists — skipping flutter create"
-          else
-            echo "web/ missing — running flutter create . --platforms=web"
-            flutter create . --platforms=web
-          fi
+      # ----------------------------------------------------
+      # 🔑 Nettoyage et dépendances (Force la génération L10N)
+      # ----------------------------------------------------
+      - name: Flutter Clean
+        # Garantit un environnement de build propre
+        run: flutter clean
 
-      - name: Flutter Pub Get
-        run: flutter pub get
-
-      - name: Generate Localizations Code (l10n)
-        run: flutter gen-l10n
-
-      - name: Show l10n folder (debug)
-        run: ls -la lib/l10n || true
-
-      - name: Show web folder (debug)
-        run: ls -la web || true
-
+      - name: Flutter Pub Get (Installe les dépendances et génère L10N)
+        # 'pub get' est suffisant pour générer le code L10N si 'generate: true' est dans pubspec.yaml
+        run: flutter pub get 
+        
+      # L'étape 'flutter gen-l10n' est supprimée car 'pub get' le fait et la double-exécution est instable en CI/CD.
+      # ----------------------------------------------------
+      # ÉTAPES DE BUILD ET D'ARTEFACT
+      # ----------------------------------------------------
       - name: Flutter Build Web
-        run: flutter build web --release --base-href /Taches-a-faire/ --no-wasm-dry-run
+        # Suppression de --no-wasm-dry-run car l'erreur était un avertissement non bloquant et non la cause du problème L10N.
+        run: flutter build web --release --base-href /Taches-a-faire/
 
       - name: Fix Base Href in index.html
-        run: sed -i 's|</head>|<base href="/Taches-a-faire/">\\n&|' build/web/index.html || true
+        # Correction de l'expression régulière sed pour plus de robustesse.
+        run: sed -i 's|</head>|<base href=\"/Taches-a-faire/\">\\n&|' build/web/index.html
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3

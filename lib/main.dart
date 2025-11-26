@@ -8,7 +8,7 @@ import 'screens/stats_screen.dart'; // <-- import ajouté
 import 'state/app_state.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'l10n/app_localizations.dart';
+// import 'l10n/app_localizations.dart';
 
 import 'notifications/notification_helper.dart';
 
